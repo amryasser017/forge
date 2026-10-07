@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
-import { BarChart3, Dumbbell, LayoutDashboard, LogOut, ScanLine, Scale, Settings } from 'lucide-react';
+import { BarChart3, CalendarDays, Dumbbell, LayoutDashboard, LogOut, ScanLine, Scale, Settings } from 'lucide-react';
 import { auth } from '../firebase';
 import { useApp } from '../AppContext';
 
@@ -8,6 +8,7 @@ const NAV = [
   { to: '/', label: 'Home', icon: LayoutDashboard, end: true },
   { to: '/body', label: 'Body', icon: Scale },
   { to: '/exercises', label: 'Lifts', icon: Dumbbell },
+  { to: '/schedule', label: 'Plan', icon: CalendarDays },
   { to: '/inbody', label: 'InBody', icon: ScanLine },
   { to: '/charts', label: 'Charts', icon: BarChart3 },
   { to: '/settings', label: 'Settings', icon: Settings },

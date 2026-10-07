@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useApp } from '../AppContext';
+import { WEEK_GOAL } from '../utils';
 
 export default function Settings() {
   const { profile, user, saveProfile } = useApp();
@@ -27,6 +28,15 @@ export default function Settings() {
             <button type="button" className={'seg' + (profile.unit === 'lb' ? ' on' : '')} onClick={() => saveProfile({ unit: 'lb' })}>Pounds</button>
           </div>
           <p className="muted">Everything is stored in kg, so switching units never changes your data.</p>
+        </div>
+        <div>
+          <span className="label-text">Gym days per week (your goal)</span>
+          <div className="seg-group">
+            {[1, 2, 3, 4, 5, 6, 7].map((n) => (
+              <button type="button" key={n} className={'seg' + ((profile.weeklyGoal ?? WEEK_GOAL) === n ? ' on' : '')} onClick={() => saveProfile({ weeklyGoal: n })}>{n}</button>
+            ))}
+          </div>
+          <p className="muted">Used for the Home counter and your week streak.</p>
         </div>
         <button className="btn primary">{saved ? 'Saved' : 'Save changes'}</button>
       </form>

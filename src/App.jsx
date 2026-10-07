@@ -8,6 +8,7 @@ import Exercises from './pages/Exercises';
 import ExerciseDetail from './pages/ExerciseDetail';
 import InBody from './pages/InBody';
 import Charts from './pages/Charts';
+import Schedule from './pages/Schedule';
 import Settings from './pages/Settings';
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/body" element={<Body />} />
         <Route path="/exercises" element={<Exercises />} />
         <Route path="/exercises/:id" element={<ExerciseDetail />} />
+        <Route path="/schedule" element={<Schedule />} />
         <Route path="/inbody" element={<InBody />} />
         <Route path="/charts" element={<Charts />} />
         <Route path="/settings" element={<Settings />} />

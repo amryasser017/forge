@@ -18,11 +18,13 @@ Firebase keys live in `.env` (never commit it). Variable names are in `.env.exam
 
 ## Data model (Firestore)
 Everything is under `users/{uid}` so rules stay simple:
-- `users/{uid}`: name, unit (kg|lb), startWeight, targetWeight, targetDate
+- `users/{uid}`: name, unit (kg|lb), startWeight, targetWeight, targetDate, weeklyGoal (gym days/week, default 3)
 - `users/{uid}/weights/{id}`: value (kg), date (YYYY-MM-DD)
 - `users/{uid}/exercises/{id}`: name, archived
 - `users/{uid}/logs/{id}`: exerciseId, exerciseName, weight (kg), reps, sets, date
 - `users/{uid}/inbody/{id}`: date, weight, muscle, fatMass, fatPct, visceral, bmr, note, image (compressed data URL)
+- `users/{uid}/checkins/{date}`: doc id is the date (YYYY-MM-DD); existence means the user marked that day as a gym day
+- `users/{uid}/schedule/{id}`: name, weekday (0=Sunday..6, or null for a custom day), exerciseIds (ordered array)
 
 Rules: `firestore.rules`. Users can only read and write their own subtree. Rules are published manually in the Firebase console.
 
@@ -31,7 +33,9 @@ Rules: `firestore.rules`. Users can only read and write their own subtree. Rules
 - Dates are stored as `YYYY-MM-DD` strings.
 - Progress % = (start - current) / (start - target), clamped 0-100. It works for weight loss and gain.
 - A PR is a log whose weight beats all earlier logs for that exercise (`computePRs` in `src/utils.js`).
-- Week streak counts weeks with 3 or more gym days (`WEEK_GOAL` in `src/utils.js`).
+- Weeks start on **Sunday** (`weekStart` in `src/utils.js`).
+- A gym day = a day with a logged lift OR a manual check-in. Week streak counts weeks that reach the user's `weeklyGoal` (default `WEEK_GOAL` in `src/utils.js`).
+- Home shows a Sun-Sat check-in row (Done / Missed / Today) and today's planned exercises from the schedule.
 - InBody images are compressed client-side and stored in the Firestore doc to stay on the free Spark plan (no Firebase Storage).
 
 ## Design system
@@ -42,7 +46,7 @@ Rules: `firestore.rules`. Users can only read and write their own subtree. Rules
 
 ## Project layout
 - `src/AppContext.jsx`: auth, profile, unit helpers, Firestore helpers, `useCol()` hook
-- `src/pages/`: Dashboard, Body, Exercises, ExerciseDetail, InBody, Charts, Settings, Login
+- `src/pages/`: Dashboard, Body, Exercises, ExerciseDetail, Schedule, InBody, Charts, Settings, Login
 - `src/components/`: Layout, PlateBar, ChartCard, Modal
 - `src/utils.js`: formulas and shared constants
 

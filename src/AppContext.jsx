@@ -43,6 +43,7 @@ export function AppProvider({ children }) {
     const uid = user?.uid;
     const api = {
       add: (name, data) => addDoc(collection(db, 'users', uid, name), { ...data, createdAt: serverTimestamp() }),
+      put: (name, id, data) => setDoc(doc(db, 'users', uid, name, id), { ...data, createdAt: serverTimestamp() }),
       upd: (name, id, data) => updateDoc(doc(db, 'users', uid, name, id), data),
       del: (name, id) => deleteDoc(doc(db, 'users', uid, name, id)),
       saveProfile: (data) => setDoc(doc(db, 'users', uid), data, { merge: true }),
