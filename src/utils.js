@@ -1,5 +1,6 @@
 export const KG_PER_LB = 0.45359237;
-export const WEEK_GOAL = 3; // gym days per week that count toward the streak
+export const WEEK_GOAL = 3; // default gym days per week (users can change it in Settings)
+export const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export const r1 = (n) => Math.round(n * 10) / 10;
 
@@ -48,7 +49,7 @@ export function computePRs(logs) {
 
 export function weekStart(s) {
   const d = new Date(s + 'T00:00:00');
-  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  d.setDate(d.getDate() - d.getDay()); // weeks start on Sunday
   return ymd(d);
 }
 

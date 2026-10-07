@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
-import { Flame, Trophy } from 'lucide-react';
+import { Check, Flame, Trophy, X } from 'lucide-react';
 import { useApp, useCol } from '../AppContext';
 import PlateBar from '../components/PlateBar';
-import { WEEK_GOAL, byDate, computePRs, fmtDate, progressPct, r1, todayStr, weekStart, weekStreak, ymd } from '../utils';
+import { DAY_NAMES, WEEK_GOAL, byDate, computePRs, fmtDate, progressPct, r1, todayStr, weekStart, weekStreak, ymd } from '../utils';
 
 function message(p) {
   if (p == null) return 'Set your goal and start the climb.';
@@ -15,10 +15,14 @@ function message(p) {
 }
 
 export default function Dashboard() {
-  const { profile, show, unit } = useApp();
+  const { profile, show, unit, put, del } = useApp();
+  const goal = profile.weeklyGoal ?? WEEK_GOAL;
   const weights = useCol('weights').items;
   const logs = useCol('logs').items;
   const inbody = useCol('inbody').items;
+  const checkins = useCol('checkins').items;
+  const schedule = useCol('schedule').items;
+  const exercises = useCol('exercises').items;
 
   const sortedW = [...weights].sort(byDate);
   const current = sortedW.length ? sortedW[sortedW.length - 1].value : profile.startWeight;
@@ -34,9 +38,16 @@ export default function Dashboard() {
     d.setDate(d.getDate() + i);
     return ymd(d);
   });
-  const trained = new Set(dates);
+  const logged = new Set(dates);
+  const checked = new Set(checkins.map((c) => c.id));
+  const trained = new Set([...logged, ...checked]);
   const daysThisWeek = weekDays.filter((d) => trained.has(d)).length;
-  const streak = weekStreak(dates);
+  const streak = weekStreak([...trained], goal);
+  const today = todayStr();
+  const toggleDay = (d) => (checked.has(d) ? del('checkins', d) : put('checkins', d, { date: d }));
+  const todayPlan = schedule
+    .filter((s) => s.weekday === new Date().getDay())
+    .map((s) => ({ ...s, ex: (s.exerciseIds || []).map((id) => exercises.find((x) => x.id === id)).filter((x) => x && !x.archived) }));
 
   const prIds = computePRs(logs);
   const recentPRs = logs.filter((l) => prIds.has(l.id)).sort(byDate).reverse().slice(0, 5);
@@ -78,7 +89,7 @@ export default function Dashboard() {
       <div className="stats">
         <div className="stat">
           <small>Gym days this week</small>
-          <b>{daysThisWeek}<em>/{WEEK_GOAL}</em></b>
+          <b>{daysThisWeek}<em>/{goal}</em></b>
           <div className="dots">
             {weekDays.map((d) => <i key={d} className={trained.has(d) ? 'on' : ''} title={d} />)}
           </div>
@@ -86,7 +97,7 @@ export default function Dashboard() {
         <div className="stat">
           <small>Week streak</small>
           <b><Flame size={22} className="ember" /> {streak}</b>
-          <p className="muted">{WEEK_GOAL}+ gym days each week</p>
+          <p className="muted">{goal}+ gym days each week</p>
         </div>
         <div className="stat">
           <small>Muscle since last InBody</small>
@@ -99,6 +110,53 @@ export default function Dashboard() {
           <p className="muted">Lower is better</p>
         </div>
       </div>
+
+      <section className="panel">
+        <header className="panel-head">
+          <h3>This week</h3>
+          <small>{daysThisWeek}/{goal} gym days · tap a day to check it off</small>
+        </header>
+        <div className="week">
+          {weekDays.map((d, i) => {
+            const done = trained.has(d);
+            const locked = logged.has(d) && !checked.has(d);
+            const missed = !done && d < today;
+            const state = done ? 'done' : missed ? 'missed' : d === today ? 'today' : 'future';
+            return (
+              <button
+                key={d}
+                type="button"
+                className={'day ' + state}
+                disabled={locked || d > today}
+                onClick={() => toggleDay(d)}
+                title={locked ? 'Done (you logged a lift)' : done ? 'Tap to undo' : 'Tap to mark done'}
+              >
+                <small>{DAY_NAMES[i].slice(0, 3)}</small>
+                <span className="day-ic">{done ? <Check size={20} /> : missed ? <X size={18} /> : <i />}</span>
+                <em>{done ? 'Done' : missed ? 'Missed' : d === today ? 'Today' : ''}</em>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {todayPlan.length > 0 && (
+        <section className="panel">
+          <header className="panel-head"><h3>Today's plan</h3><Link to="/schedule" className="link">Edit plan</Link></header>
+          {todayPlan.map((s) => (
+            <div key={s.id}>
+              <b>{s.name}</b>
+              {s.ex.length === 0 ? <p className="muted">No exercises added yet.</p> : (
+                <ul className="rows">
+                  {s.ex.map((x) => (
+                    <li key={x.id}><Link to={`/exercises/${x.id}`} className="grow"><b>{x.name}</b></Link><Link to={`/exercises/${x.id}`} className="link">Log</Link></li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
+        </section>
+      )}
 
       <div className="two">
         <section className="panel">
