@@ -1,0 +1,2 @@
+psql -h /var/tmp/trio-pg -p 54329 -U postgres -d trio -qc "truncate body_measurements, workout_sessions, food_logs, food_items, saved_meals, water_logs, daily_check_ins, xp_transactions, member_achievements, member_cosmetics, challenges, ai_insights, login_attempts cascade; update members set equipped_title=null, equipped_frame=null, share_body_stats=true, display_name=name, workout_days='{0,1,2,3,4,5,6}', tone='hype', language='ar', messages_enabled=true" 2>/dev/null
+rm -f mode.txt
