@@ -16,13 +16,14 @@ function message(p) {
 
 export default function Dashboard() {
   const { profile, show, unit, put, del } = useApp();
-  const goal = profile.weeklyGoal ?? WEEK_GOAL;
   const weights = useCol('weights').items;
   const logs = useCol('logs').items;
   const inbody = useCol('inbody').items;
   const checkins = useCol('checkins').items;
   const schedule = useCol('schedule').items;
   const exercises = useCol('exercises').items;
+  // Weekly target = number of days in the plan; falls back to the Settings goal when there is no plan yet.
+  const goal = schedule.length || (profile.weeklyGoal ?? WEEK_GOAL);
 
   const sortedW = [...weights].sort(byDate);
   const current = sortedW.length ? sortedW[sortedW.length - 1].value : profile.startWeight;
@@ -97,7 +98,7 @@ export default function Dashboard() {
         <div className="stat">
           <small>Week streak</small>
           <b><Flame size={22} className="ember" /> {streak}</b>
-          <p className="muted">{goal}+ gym days each week</p>
+          <p className="muted">Weeks with all {goal} planned days done</p>
         </div>
         <div className="stat">
           <small>Muscle since last InBody</small>

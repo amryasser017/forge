@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowDown, ArrowUp, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronDown, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useApp, useCol } from '../AppContext';
 import Modal from '../components/Modal';
 import { DAY_NAMES } from '../utils';
@@ -42,6 +42,8 @@ export default function Schedule() {
   const exercises = useCol('exercises').items.filter((x) => !x.archived).sort((a, b) => a.name.localeCompare(b.name));
   const [form, setForm] = useState(null); // {} for new, day object for edit
   const [picking, setPicking] = useState(null); // day id
+  const [open, setOpen] = useState(() => new Set()); // expanded day ids; cards start collapsed
+  const flip = (id) => setOpen((o) => { const n = new Set(o); n.has(id) ? n.delete(id) : n.add(id); return n; });
 
   const byId = Object.fromEntries(exercises.map((x) => [x.id, x]));
   const setEx = (day, ids) => upd('schedule', day.id, { exerciseIds: ids });
@@ -66,17 +68,22 @@ export default function Schedule() {
       {days.length === 0 ? (
         <div className="panel empty">Plan your week: add a day (Sunday, Monday, or your own name), then pick the exercises for it.</div>
       ) : (
-        <div className="cards">
+        <div className="sched-list">
           {days.map((d) => {
             const ids = (d.exerciseIds || []).filter((id) => byId[id]);
+            const isOpen = open.has(d.id);
             return (
               <section key={d.id} className="panel sched-day">
                 <div className="sched-head">
-                  <h4>{d.name}</h4>
+                  <button className="sched-toggle" aria-expanded={isOpen} onClick={() => flip(d.id)}>
+                    <h4>{d.name}</h4>
+                    <small>{ids.length} {ids.length === 1 ? 'exercise' : 'exercises'}</small>
+                    <ChevronDown size={20} className={'chev' + (isOpen ? ' open' : '')} />
+                  </button>
                   <button className="icon-btn" aria-label="Edit day" onClick={() => setForm(d)}><Pencil size={18} /></button>
                   <button className="icon-btn danger" aria-label="Delete day" onClick={() => window.confirm(`Delete ${d.name}?`) && del('schedule', d.id)}><Trash2 size={18} /></button>
                 </div>
-                {ids.length === 0 ? <small>No exercises yet.</small> : (
+                {isOpen && (ids.length === 0 ? <small>No exercises yet.</small> : (
                   <ul className="rows">
                     {ids.map((id, i) => (
                       <li key={id}>
@@ -87,8 +94,8 @@ export default function Schedule() {
                       </li>
                     ))}
                   </ul>
-                )}
-                <button className="btn ghost" onClick={() => setPicking(d.id)}><Plus size={16} /> Exercises</button>
+                ))}
+                {isOpen && <button className="btn ghost" onClick={() => setPicking(d.id)}><Plus size={16} /> Exercises</button>}
               </section>
             );
           })}

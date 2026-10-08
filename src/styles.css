@@ -110,7 +110,11 @@ small { color: var(--muted); font-size: .82rem; }
 /* schedule */
 .sched-day { display: flex; flex-direction: column; gap: .6rem; }
 .sched-head { display: flex; align-items: center; gap: .6rem; }
-.sched-head h4 { flex: 1; }
+.sched-list { display: flex; flex-direction: column; gap: .8rem; }
+.sched-toggle { flex: 1; display: flex; align-items: center; gap: .7rem; min-height: 44px; padding: 0; background: none; border: 0; color: var(--text); text-align: left; cursor: pointer; }
+.sched-toggle h4 { flex: 1; }
+.chev { color: var(--muted); transition: transform .2s; }
+.chev.open { transform: rotate(180deg); }
 .pick { display: flex; flex-direction: row; align-items: center; gap: .7rem; padding: .7rem; border: 1px solid var(--line); border-radius: 10px; color: var(--text); font-size: 1rem; min-height: 46px; cursor: pointer; }
 .pick input { width: auto; min-height: 0; accent-color: var(--ember); }
 .pick.on { border-color: var(--ember); }
