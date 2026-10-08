@@ -26,8 +26,8 @@ Stack: Next.js 15 (App Router) · TypeScript (strict) · Tailwind CSS 3 · Supab
 
 ## Setup
 
-1. **Create a Supabase project.** In *SQL Editor* run, in order, the files in `supabase/migrations/`
-   (or `npm run db:sql` to print them all):
+1. **Create a Supabase project.** In *SQL Editor* paste the single file `supabase/setup.sql` (all three migrations
+   combined; regenerate with `npm run db:sql > supabase/setup.sql`). Or run the files in `supabase/migrations/` in order:
    `0001_schema.sql` (tables, RLS, reward functions) → `0002_storage.sql` (private photo bucket) → `0003_seed.sql`
    (the 3 members, 36 exercises, achievements, cosmetics). Re-running the seed is safe (idempotent).
 2. **Environment variables** (see `.env.example`). Put them in `.env.local` for development and in your host for production:
