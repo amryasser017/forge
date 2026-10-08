@@ -30,13 +30,13 @@ export default function Settings() {
           <p className="muted">Everything is stored in kg, so switching units never changes your data.</p>
         </div>
         <div>
-          <span className="label-text">Gym days per week (your goal)</span>
+          <span className="label-text">Gym days per week (used until you build a plan)</span>
           <div className="seg-group">
             {[1, 2, 3, 4, 5, 6, 7].map((n) => (
               <button type="button" key={n} className={'seg' + ((profile.weeklyGoal ?? WEEK_GOAL) === n ? ' on' : '')} onClick={() => saveProfile({ weeklyGoal: n })}>{n}</button>
             ))}
           </div>
-          <p className="muted">Used for the Home counter and your week streak.</p>
+          <p className="muted">Once you add days in the Plan tab, the number of planned days is your weekly goal instead.</p>
         </div>
         <button className="btn primary">{saved ? 'Saved' : 'Save changes'}</button>
       </form>
