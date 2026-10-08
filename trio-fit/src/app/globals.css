@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f5f7fa;
+  --card: #ffffff;
+  --ink: #172b4d;
+  --muted: #5e6c84;
+  --line: #e3e8ef;
+}
+.dark {
+  --bg: #0e1726;
+  --card: #16223a;
+  --ink: #eaf0fb;
+  --muted: #9fb0cc;
+  --line: #243351;
+}
+
+@layer base {
+  html { -webkit-tap-highlight-color: transparent; }
+  body { @apply bg-[var(--bg)] text-[var(--ink)] antialiased; font-family: ui-rounded, 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif; }
+  h1, h2, h3 { @apply font-extrabold tracking-tight; }
+  input, select, textarea { @apply w-full min-h-[44px] rounded-xl border border-[var(--line)] bg-[var(--card)] px-3 py-2 text-base text-[var(--ink)] outline-none transition; }
+  input:focus, select:focus, textarea:focus { @apply border-brand-orange ring-2 ring-brand-orange/25; }
+  input[type='checkbox'], input[type='radio'] { @apply min-h-0 w-auto accent-[#F28C28]; }
+  button, a { @apply outline-none; }
+  :focus-visible { @apply ring-2 ring-brand-sky ring-offset-2 ring-offset-[var(--bg)]; }
+  [dir='auto'] { unicode-bidi: plaintext; }
+}
+
+@layer components {
+  .card { @apply rounded-xl2 border border-[var(--line)] bg-[var(--card)] p-4 shadow-card sm:p-5; }
+  .btn { @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60; }
+  .btn-primary { @apply bg-brand-orange text-white hover:brightness-105; }
+  .btn-sky { @apply bg-brand-sky text-brand-navy hover:brightness-105; }
+  .btn-green { @apply bg-brand-green text-brand-navy hover:brightness-105; }
+  .btn-ghost { @apply border border-[var(--line)] bg-transparent text-[var(--ink)] hover:bg-black/5 dark:hover:bg-white/5; }
+  .btn-danger { @apply border border-red-300 bg-transparent text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30; }
+  .label { @apply mb-1 block text-xs font-bold uppercase tracking-wide text-[var(--muted)]; }
+  .chip { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold; }
+  .muted { color: var(--muted); }
+}
+
+@keyframes confetti-fall { to { transform: translateY(110vh) rotate(720deg); opacity: .9; } }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }

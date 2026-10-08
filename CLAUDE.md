@@ -55,3 +55,10 @@ Rules: `firestore.rules`. Users can only read and write their own subtree. Rules
 2. Challenges and badges
 3. Progress photos
 4. Arabic / RTL support (English only for now)
+
+## TRIO FIT (separate app in `trio-fit/`)
+A second, private app for AMR / AMAN / SHADY lives in the `trio-fit/` folder (Next.js 15 + TypeScript + Supabase). It does not
+share code with Forge and deploys as its own Vercel project with Root Directory `trio-fit`. Read `trio-fit/README.md` before
+changing it. Key rules: all DB access is server-side with the service-role key (RLS denies everything else); the member id comes
+from the session cookie only; rewards go through `award_xp()` with a unique `event_key`; calculations live in
+`trio-fit/src/lib/domain` and must stay unit-tested (`cd trio-fit && npm run check`).
