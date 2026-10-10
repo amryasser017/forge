@@ -33,9 +33,9 @@ Rules: `firestore.rules`. Users can only read and write their own subtree. Rules
 - Dates are stored as `YYYY-MM-DD` strings.
 - Progress % = (start - current) / (start - target), clamped 0-100. It works for weight loss and gain.
 - A PR is a log whose weight beats all earlier logs for that exercise (`computePRs` in `src/utils.js`).
-- Weeks start on **Sunday** (`weekStart` in `src/utils.js`).
+- Weeks start on **Saturday** (`weekStart` in `src/utils.js`). Weekday numbers stored in data are still JS `getDay()` (0 = Sunday); `WEEK_ORDER` is the display order.
 - A gym day = a day with a logged lift OR a manual check-in. The weekly goal = number of days in the Plan (schedule); with no plan it falls back to `weeklyGoal` (default `WEEK_GOAL` in `src/utils.js`). Week streak counts weeks that reach the goal.
-- Home shows a Sun-Sat check-in row (Done / Missed / Today) and today's planned exercises from the schedule.
+- Home shows a Sat-Fri check-in row (Done / Missed / Today) and today's planned exercises from the schedule.
 - InBody images are compressed client-side and stored in the Firestore doc to stay on the free Spark plan (no Firebase Storage).
 
 ## Design system

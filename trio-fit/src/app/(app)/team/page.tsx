@@ -4,7 +4,7 @@ import { ChallengeCreator, WeeklyDefaults } from '@/components/team/challenge-fo
 import { Avatar, EmptyState, PageTitle, ProgressBar, SectionTitle } from '@/components/ui/bits';
 import { CHALLENGE_METRICS, type ChallengeMetric } from '@/lib/domain/challenges';
 import { BOARDS, type Period } from '@/lib/domain/leaderboard';
-import { addDays, dayKey, dayOfWeek, fmtDay, monthStartKey, rangeKeys } from '@/lib/domain/time';
+import { WEEKDAY_SHORT, WEEK_ORDER, WEEK_STARTS_ON, addDays, dayKey, dayOfWeek, fmtDay, monthStartKey, rangeKeys } from '@/lib/domain/time';
 import { listChallenges, type ChallengeView } from '@/lib/server/challenges';
 import { computeBoards } from '@/lib/server/leaderboard';
 import { requireSession } from '@/lib/server/session';
@@ -50,7 +50,8 @@ export default async function Team({ searchParams }: { searchParams: Promise<{ p
 
   // calendar
   const monthEnd = addDays(addDays(monthKey, 32).slice(0, 7) + '-01', -1);
-  const grid = rangeKeys(addDays(monthKey, -dayOfWeek(monthKey)), addDays(monthEnd, 6 - dayOfWeek(monthEnd)));
+  const offset = (k: string) => (dayOfWeek(k) - WEEK_STARTS_ON + 7) % 7; // days since the week started
+  const grid = rangeKeys(addDays(monthKey, -offset(monthKey)), addDays(monthEnd, 6 - offset(monthEnd)));
   const prevM = addDays(monthKey, -1).slice(0, 7), nextM = addDays(monthEnd, 1).slice(0, 7);
 
   return (
@@ -86,7 +87,7 @@ export default async function Team({ searchParams }: { searchParams: Promise<{ p
       <section className="card">
         <SectionTitle right={<div className="flex items-center gap-1"><Link href={`/team?m=${prevM}`} className="btn btn-ghost !min-h-[40px]" aria-label="Previous month">‹</Link><Link href={`/team?m=${nextM}`} className="btn btn-ghost !min-h-[40px]" aria-label="Next month">›</Link></div>}>Trio calendar · {fmtDay(monthKey, { month: 'long', year: 'numeric' })}</SectionTitle>
         <div className="mb-2 flex flex-wrap gap-3 text-xs font-bold">{res.members.map((m) => <span key={m.id} className="flex items-center gap-1"><i className={`h-3 w-3 rounded-full ${COLORS[m.slug]}`} />{m.display_name}</span>)}<span className="muted">· dim = rest day</span></div>
-        <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-bold muted">{['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => <div key={i}>{d}</div>)}</div>
+        <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-bold muted">{WEEK_ORDER.map((d) => <div key={d}>{WEEKDAY_SHORT[d]!.slice(0, 2)}</div>)}</div>
         <div className="mt-1 grid grid-cols-7 gap-1">
           {grid.map((d) => {
             const inMonth = d.slice(0, 7) === monthKey.slice(0, 7);

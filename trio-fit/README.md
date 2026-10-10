@@ -74,7 +74,7 @@ encouragement is used instead.
 - **Levels:** leaving level *L* costs `100 + 50·(L−1)` XP, i.e. cumulative `100(L−1) + 25(L−1)(L−2)` to reach level *L*. Always harder.
 - **Streaks:** your schedule = training weekdays (Settings). Workout streak = consecutive days with a workout; a *rest day* never
   breaks it, a missed *planned* day does, and today never breaks it while pending. The current schedule is applied to all history.
-  Workouts on rest days count. Logging streak = any logged activity. Day boundaries use `APP_TIMEZONE`. Weeks start on Sunday.
+  Workouts on rest days count. Logging streak = any logged activity. Day boundaries use `APP_TIMEZONE`. Weeks start on Saturday (`WEEK_STARTS_ON` in `src/lib/domain/time.ts`).
   "Comeback" (≥7 days away) is rewarded with an achievement, never punished.
 - **Leaderboards** (formulas shown on the page): Overall XP · Consistency (completed ÷ planned days, vs *your* schedule) ·
   Personal improvement (avg % volume change first→latest per exercise, vs yourself) · Nutrition logging (complete days ÷ days) ·

@@ -1,6 +1,8 @@
 export const KG_PER_LB = 0.45359237;
 export const WEEK_GOAL = 3; // default gym days per week (users can change it in Settings)
-export const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+export const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']; // index = JS getDay()
+/** getDay() values in display order; the week starts on Saturday. */
+export const WEEK_ORDER = [6, 0, 1, 2, 3, 4, 5];
 
 export const r1 = (n) => Math.round(n * 10) / 10;
 
@@ -49,7 +51,7 @@ export function computePRs(logs) {
 
 export function weekStart(s) {
   const d = new Date(s + 'T00:00:00');
-  d.setDate(d.getDate() - d.getDay()); // weeks start on Sunday
+  d.setDate(d.getDate() - ((d.getDay() + 1) % 7)); // weeks start on Saturday
   return ymd(d);
 }
 

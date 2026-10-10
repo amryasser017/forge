@@ -132,7 +132,7 @@ export default function Dashboard() {
                 onClick={() => toggleDay(d)}
                 title={locked ? 'Done (you logged a lift)' : done ? 'Tap to undo' : 'Tap to mark done'}
               >
-                <small>{DAY_NAMES[i].slice(0, 3)}</small>
+                <small>{DAY_NAMES[new Date(d + 'T00:00:00').getDay()].slice(0, 3)}</small>
                 <span className="day-ic">{done ? <Check size={20} /> : missed ? <X size={18} /> : <i />}</span>
                 <em>{done ? 'Done' : missed ? 'Missed' : d === today ? 'Today' : ''}</em>
               </button>

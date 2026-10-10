@@ -6,7 +6,7 @@ import { saveRulesAction, saveSettingsAction } from '@/app/actions/settings';
 import { buyCosmeticAction, equipCosmeticAction } from '@/app/actions/team';
 import { ActionForm, Field, Submit } from '@/components/ui/action-form';
 import { useFeedback } from '@/components/ui/feedback';
-import { WEEKDAY_NAMES } from '@/lib/domain/time';
+import { WEEKDAY_NAMES, WEEK_ORDER } from '@/lib/domain/time';
 import { XP_RULE_LABELS, type XpRules } from '@/lib/domain/xp';
 import type { Cosmetic, Member } from '@/lib/types';
 
@@ -17,8 +17,8 @@ export function ProfileForm({ member }: { member: Member }) {
       <fieldset>
         <legend className="label">Training days (your weekly schedule)</legend>
         <div className="flex flex-wrap gap-2">
-          {WEEKDAY_NAMES.map((d, i) => (
-            <label key={d} className="cursor-pointer"><input type="checkbox" name="workoutDays" value={i} defaultChecked={member.workout_days.includes(i)} className="peer sr-only" /><span className="grid min-h-[44px] min-w-[56px] place-items-center rounded-xl border border-[var(--line)] px-3 text-sm font-bold peer-checked:border-brand-orange peer-checked:bg-brand-orange peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-brand-sky">{d.slice(0, 3)}</span></label>
+          {WEEK_ORDER.map((i) => (
+            <label key={i} className="cursor-pointer"><input type="checkbox" name="workoutDays" value={i} defaultChecked={member.workout_days.includes(i)} className="peer sr-only" /><span className="grid min-h-[44px] min-w-[56px] place-items-center rounded-xl border border-[var(--line)] px-3 text-sm font-bold peer-checked:border-brand-orange peer-checked:bg-brand-orange peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-brand-sky">{WEEKDAY_NAMES[i]!.slice(0, 3)}</span></label>
           ))}
         </div>
         <p className="mt-1 text-xs muted">Unchecked days are rest days: they never break your streak.</p>

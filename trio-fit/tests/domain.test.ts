@@ -3,7 +3,7 @@ import { bmi, fatFreeMassKg, fatMassKg, pctChange, targetProgress, delta } from 
 import { compareExercise, detectPrs, totalVolume, totalReps, maxWeight, improvementScore, compareCardio } from '@/lib/domain/workout';
 import { DEFAULT_XP_RULES, levelFromXp, resolveRules, xpToReachLevel, costOfLevel, coinsForXp } from '@/lib/domain/xp';
 import { workoutStreak, loggingStreak, consistency, weekProgress, isComeback } from '@/lib/domain/streaks';
-import { addDays, dayKey, dayOfWeek, weekStartKey, weekRange, rangeKeys } from '@/lib/domain/time';
+import { addDays, dayKey, dayOfWeek, weekStartKey, weekRange, rangeKeys, WEEK_ORDER } from '@/lib/domain/time';
 import { parseYouTubeUrl, searchUrl, embedUrl } from '@/lib/domain/youtube';
 import { validateChallengeDraft, progressPct, isComplete, battleWinner, type ChallengeDraft } from '@/lib/domain/challenges';
 import { rank } from '@/lib/domain/leaderboard';
@@ -114,11 +114,15 @@ describe('time and day boundaries', () => {
     expect(dayKey(new Date('2026-01-01T23:30:00Z'), 'Africa/Cairo')).toBe('2026-01-02');
     expect(dayKey(new Date('2026-01-01T23:30:00Z'), 'UTC')).toBe('2026-01-01');
   });
-  it('does date math on keys and weeks start on Sunday', () => {
+  it('does date math on keys and weeks start on Saturday', () => {
     expect(addDays('2026-02-28', 1)).toBe('2026-03-01');
     expect(dayOfWeek('2026-10-07')).toBe(3); // Wednesday
-    expect(weekStartKey('2026-10-07')).toBe('2026-10-04');
-    expect(weekRange('2026-10-07').end).toBe('2026-10-10');
+    expect(weekStartKey('2026-10-07')).toBe('2026-10-03'); // Saturday
+    expect(weekStartKey('2026-10-03')).toBe('2026-10-03'); // a Saturday starts its own week
+    expect(weekStartKey('2026-10-09')).toBe('2026-10-03'); // Friday is the last day of that week
+    expect(weekStartKey('2026-10-10')).toBe('2026-10-10');
+    expect(weekRange('2026-10-07').end).toBe('2026-10-09');
+    expect(WEEK_ORDER).toEqual([6, 0, 1, 2, 3, 4, 5]);
     expect(rangeKeys('2026-01-01', '2026-01-03')).toHaveLength(3);
   });
 });

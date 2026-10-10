@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { ArrowDown, ArrowUp, ChevronDown, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useApp, useCol } from '../AppContext';
 import Modal from '../components/Modal';
-import { DAY_NAMES } from '../utils';
+import { DAY_NAMES, WEEK_ORDER } from '../utils';
 
 const order = (a, b) =>
-  (a.weekday ?? 9) - (b.weekday ?? 9) || (a.createdAt?.seconds ?? 9e12) - (b.createdAt?.seconds ?? 9e12);
+  ((a.weekday == null ? 9 : (a.weekday + 1) % 7)) - ((b.weekday == null ? 9 : (b.weekday + 1) % 7)) || (a.createdAt?.seconds ?? 9e12) - (b.createdAt?.seconds ?? 9e12);
 
 function DayForm({ initial, onSave, onClose, title }) {
   const [weekday, setWeekday] = useState(initial?.weekday ?? new Date().getDay());
@@ -23,7 +23,7 @@ function DayForm({ initial, onSave, onClose, title }) {
       <form className="form" onSubmit={submit}>
         <label>Day
           <select value={weekday} onChange={(e) => setWeekday(Number(e.target.value))}>
-            {DAY_NAMES.map((d, i) => <option key={d} value={i}>{d}</option>)}
+            {WEEK_ORDER.map((i) => <option key={i} value={i}>{DAY_NAMES[i]}</option>)}
             <option value={-1}>Custom (no fixed weekday)</option>
           </select>
         </label>
@@ -66,7 +66,7 @@ export default function Schedule() {
       </div>
 
       {days.length === 0 ? (
-        <div className="panel empty">Plan your week: add a day (Sunday, Monday, or your own name), then pick the exercises for it.</div>
+        <div className="panel empty">Plan your week: add a day (Saturday, Sunday, or your own name), then pick the exercises for it.</div>
       ) : (
         <div className="sched-list">
           {days.map((d) => {

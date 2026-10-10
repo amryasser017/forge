@@ -1,7 +1,7 @@
 /** Day keys are 'YYYY-MM-DD' strings in the app timezone. All "day boundary" logic goes through here. */
 export const DEFAULT_TZ = 'Africa/Cairo';
-/** 0 = Sunday. Weeks start on Sunday (same as the original Forge app). */
-export const WEEK_STARTS_ON = 0;
+/** JS getDay() numbering (0 = Sunday). Weeks start on Saturday. */
+export const WEEK_STARTS_ON = 6;
 
 export function dayKey(date: Date | string | number = new Date(), tz: string = DEFAULT_TZ): string {
   const d = date instanceof Date ? date : new Date(date);
@@ -45,6 +45,8 @@ export function monthStartKey(key: string): string {
   return `${key.slice(0, 7)}-01`;
 }
 export const WEEKDAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const;
+/** getDay() values in display order, starting at WEEK_STARTS_ON. */
+export const WEEK_ORDER: number[] = Array.from({ length: 7 }, (_, i) => (WEEK_STARTS_ON + i) % 7);
 export const WEEKDAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 
 export function fmtDay(key: string, opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' }): string {
