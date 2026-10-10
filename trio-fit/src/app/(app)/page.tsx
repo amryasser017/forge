@@ -83,7 +83,7 @@ export default async function Dashboard() {
               </li>
             ))}
           </ol>
-          <p className="mt-2 text-xs muted">Ranking resets every Sunday. Deeper boards compare each of you against your own progress.</p>
+          <p className="mt-2 text-xs muted">Ranking resets every Saturday. Deeper boards compare each of you against your own progress.</p>
         </section>
 
         <section className="card">
