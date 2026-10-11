@@ -24,6 +24,7 @@ Everything is under `users/{uid}` so rules stay simple:
 - `users/{uid}/logs/{id}`: exerciseId, exerciseName, weight (kg), reps, sets, date
 - `users/{uid}/inbody/{id}`: date, weight, muscle, fatMass, fatPct, visceral, bmr, note, image (compressed data URL)
 - `users/{uid}/checkins/{date}`: doc id is the date (YYYY-MM-DD); existence means the user marked that day as a gym day
+- `users/{uid}/folders/{id}`: name, exerciseIds (array of exercise doc ids; an exercise can be in several folders; exercises in no folder show under "Not in a folder")
 - `users/{uid}/schedule/{id}`: name, weekday (0=Sunday..6, or null for a custom day), exerciseIds (ordered array)
 
 Rules: `firestore.rules`. Users can only read and write their own subtree. Rules are published manually in the Firebase console.
@@ -35,6 +36,7 @@ Rules: `firestore.rules`. Users can only read and write their own subtree. Rules
 - A PR is a log whose weight beats all earlier logs for that exercise (`computePRs` in `src/utils.js`).
 - Weeks start on **Saturday** (`weekStart` in `src/utils.js`). Weekday numbers stored in data are still JS `getDay()` (0 = Sunday); `WEEK_ORDER` is the display order.
 - A gym day = a day with a logged lift OR a manual check-in. The weekly goal = number of days in the Plan (schedule); with no plan it falls back to `weeklyGoal` (default `WEEK_GOAL` in `src/utils.js`). Week streak counts weeks that reach the goal.
+- My lifts is organised in folders (collapsed by default). "Add exercise" inside a folder either picks existing exercises or creates a new one; deleting a folder never deletes exercises or logs.
 - Home shows a Sat-Fri check-in row (Done / Missed / Today) and today's planned exercises from the schedule.
 - InBody images are compressed client-side and stored in the Firestore doc to stay on the free Spark plan (no Firebase Storage).
 
