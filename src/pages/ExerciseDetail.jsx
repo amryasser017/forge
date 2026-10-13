@@ -1,17 +1,26 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Archive, ArrowLeft, Pencil, Trash2, Trophy } from 'lucide-react';
 import { useApp, useCol } from '../AppContext';
 import ChartCard from '../components/ChartCard';
+import { datasetIdOf, ensureLibExercise, useExerciseLibrary } from '../lib/exerciseData';
 import { COLORS, byDate, computePRs, epley, fmtDate, r1, shortDate, todayStr } from '../utils';
 
 export default function ExerciseDetail() {
   const { id } = useParams();
   const nav = useNavigate();
-  const { add, upd, del, show, toKg, unit } = useApp();
+  const app = useApp();
+  const { add, upd, del, show, toKg, unit } = app;
   const exercises = useCol('exercises');
   const allLogs = useCol('logs').items;
   const ex = exercises.items.find((x) => x.id === id);
+  const lib = useExerciseLibrary();
+  const libEx = lib.byId[datasetIdOf(id)];
+
+  // A library exercise opened for the first time gets its own doc (deterministic id lib_<datasetId>).
+  useEffect(() => {
+    if (!exercises.loading && !ex && libEx) ensureLibExercise(app, libEx);
+  }, [exercises.loading, ex, libEx]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [weight, setWeight] = useState('');
   const [reps, setReps] = useState('');
@@ -19,7 +28,7 @@ export default function ExerciseDetail() {
   const [date, setDate] = useState(todayStr());
   const [pr, setPr] = useState(false);
 
-  if (exercises.loading) return <div className="page" />;
+  if (exercises.loading || (!ex && (libEx || (datasetIdOf(id) && !lib.data && !lib.error)))) return <div className="page" />;
   if (!ex) return <div className="page"><Link to="/exercises" className="link">Back to lifts</Link><div className="panel empty">This exercise no longer exists.</div></div>;
 
   const logs = allLogs.filter((l) => l.exerciseId === id).sort(byDate);

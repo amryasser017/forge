@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import {
-  addDoc, collection, deleteDoc, doc, onSnapshot, serverTimestamp, setDoc, updateDoc,
+  addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, serverTimestamp, setDoc, updateDoc,
 } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import { KG_PER_LB, r1 } from './utils';
@@ -44,6 +44,14 @@ export function AppProvider({ children }) {
     const api = {
       add: (name, data) => addDoc(collection(db, 'users', uid, name), { ...data, createdAt: serverTimestamp() }),
       put: (name, id, data) => setDoc(doc(db, 'users', uid, name, id), { ...data, createdAt: serverTimestamp() }),
+      /** Merge fields into a doc by id (creates it if missing). */
+      merge: (name, id, data) => setDoc(doc(db, 'users', uid, name, id), data, { merge: true }),
+      /** Create a doc with a fixed id only if it does not exist yet; never overwrites an existing doc. */
+      ensureDoc: async (name, id, data) => {
+        const ref = doc(db, 'users', uid, name, id);
+        if (!(await getDoc(ref)).exists()) await setDoc(ref, { ...data, createdAt: serverTimestamp() });
+        return id;
+      },
       upd: (name, id, data) => updateDoc(doc(db, 'users', uid, name, id), data),
       del: (name, id) => deleteDoc(doc(db, 'users', uid, name, id)),
       saveProfile: (data) => setDoc(doc(db, 'users', uid), data, { merge: true }),

@@ -240,3 +240,41 @@ td:last-child svg { vertical-align: -2px; }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+/* ---------- exercise library ---------- */
+.sticky-search { position: sticky; top: 0; z-index: 6; display: flex; align-items: center; gap: .5rem; padding: .55rem .8rem; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+.sticky-search input { flex: 1; border: 0; background: transparent; min-height: 40px; padding: 0; box-shadow: none; }
+.sticky-search input:focus { box-shadow: none; }
+.sticky-search svg { color: var(--muted); flex: none; }
+.folder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .8rem; }
+.folder-card { display: flex; flex-direction: column; align-items: flex-start; gap: .15rem; min-height: 96px; padding: .9rem 1rem; text-align: left; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; color: var(--text); cursor: pointer; transition: border-color .15s, transform .15s; }
+.folder-card:hover { border-color: var(--ember); transform: translateY(-2px); }
+.folder-card b { font-family: var(--display); font-size: 1.35rem; font-weight: 800; letter-spacing: .01em; }
+.folder-card.custom { border-style: dashed; }
+.folder-emoji { font-size: 1.7rem; line-height: 1; }
+.folder-title { font-size: 2rem; text-transform: uppercase; display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap; }
+.folder-title small { font-family: var(--body); font-size: .9rem; text-transform: none; font-weight: 500; }
+.ex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: .7rem; }
+.ex-card { display: flex; gap: .8rem; align-items: center; padding: .6rem; min-height: 84px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; color: var(--text); transition: border-color .15s; }
+.ex-card:hover { border-color: var(--ember); }
+.ex-card-main { display: flex; flex-direction: column; gap: .25rem; min-width: 0; flex: 1; }
+.ex-card-name { font-weight: 700; line-height: 1.2; }
+.ex-img { position: relative; display: block; overflow: hidden; background: var(--panel-2); border-radius: 10px; flex: none; }
+.ex-img img { width: 100%; height: 100%; object-fit: cover; transition: opacity .25s; display: block; }
+.ex-thumb { width: 72px; height: 72px; }
+.ex-img-empty { display: grid; place-items: center; color: var(--muted); font-size: 1.6rem; }
+.skeleton { position: absolute; inset: 0; background: linear-gradient(90deg, var(--panel-2) 25%, #27324a 50%, var(--panel-2) 75%); background-size: 200% 100%; animation: shimmer 1.3s infinite linear; }
+.skeleton-line { display: block; height: .9rem; border-radius: 6px; width: 80%; background: var(--panel-2); }
+.skeleton-line.short { width: 45%; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+.chips-sm { display: flex; flex-wrap: wrap; gap: .3rem; }
+.chip-sm { font-style: normal; font-size: .72rem; font-weight: 700; padding: .12rem .5rem; border-radius: 99px; background: var(--panel-2); color: var(--muted); }
+.chip-sm.pop { background: rgba(255,197,61,.15); color: var(--gold); }
+.chip-sm.folder { background: rgba(67,217,240,.12); color: var(--volt); }
+.chips-row { display: flex; gap: .45rem; overflow-x: auto; padding-bottom: .2rem; }
+.chip-btn { flex: none; min-height: 40px; padding: 0 .9rem; border-radius: 99px; background: transparent; border: 1px solid var(--line); color: var(--muted); font-weight: 700; cursor: pointer; }
+.chip-btn.on { border-color: var(--ember); color: var(--ember); background: rgba(255,106,43,.1); }
+.btn.wide { width: 100%; }
+.volt { color: var(--volt); }
+.mycustom { display: flex; flex-direction: column; gap: 1.1rem; }
+@media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
