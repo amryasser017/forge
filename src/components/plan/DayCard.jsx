@@ -9,7 +9,6 @@ import { moveItem, removeItem, setTargets, toggleFocus } from '../../lib/plan';
 const canDrag = () => typeof window !== 'undefined' && window.matchMedia?.('(pointer: fine)').matches;
 
 function ItemRow({ it, i, n, doc, lib, logs, onOpen, onChange, onRemove, onMove, dragFrom, setDragFrom, onDropTo }) {
-  const [editing, setEditing] = useState(false);
   const name = doc?.name ?? 'Removed exercise';
   return (
     <li
@@ -25,20 +24,16 @@ function ItemRow({ it, i, n, doc, lib, logs, onOpen, onChange, onRemove, onMove,
         {lib ? <ExerciseImage ex={lib} className="ex-thumb sm" /> : <span className="ex-img ex-thumb sm ex-img-empty" aria-hidden>{FOLDER_BY_KEY[doc?.folderKey]?.emoji ?? '🛠️'}</span>}
         <span className="plan-item-text"><b>{name}</b><Glance logs={logs} /></span>
       </button>
-      <button type="button" className="target-btn" onClick={() => setEditing((e) => !e)} aria-expanded={editing} aria-label={`${name}: ${it.targetSets} sets of ${it.targetReps}. Edit targets`}>{it.targetSets} × {it.targetReps}</button>
       <div className="plan-item-actions">
         <button type="button" className="icon-btn" aria-label={`Move ${name} up`} disabled={i === 0} onClick={() => onMove(i, i - 1)}><ArrowUp size={16} /></button>
         <button type="button" className="icon-btn" aria-label={`Move ${name} down`} disabled={i === n - 1} onClick={() => onMove(i, i + 1)}><ArrowDown size={16} /></button>
         <button type="button" className="icon-btn danger" aria-label={`Remove ${name}`} onClick={onRemove}><X size={16} /></button>
       </div>
-      {editing && (
-        <div className="target-editor">
-          <Stepper label="Sets" value={it.targetSets} min={1} max={20} onChange={(v) => onChange(v, it.targetReps)} />
-          <span aria-hidden>×</span>
-          <Stepper label="Reps" value={it.targetReps} min={1} max={100} onChange={(v) => onChange(it.targetSets, v)} />
-          <button type="button" className="btn ghost" onClick={() => setEditing(false)}>Done</button>
-        </div>
-      )}
+      <div className="target-editor">
+        <Stepper label="Sets" value={it.targetSets} min={1} max={20} onChange={(v) => onChange(v, it.targetReps)} />
+        <span aria-hidden>×</span>
+        <Stepper label="Reps" value={it.targetReps} min={1} max={100} onChange={(v) => onChange(it.targetSets, v)} />
+      </div>
     </li>
   );
 }
