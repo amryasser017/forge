@@ -20,12 +20,13 @@ Firebase keys live in `.env` (never commit it). Variable names are in `.env.exam
 Everything is under `users/{uid}` so rules stay simple:
 - `users/{uid}`: name, unit (kg|lb), startWeight, targetWeight, targetDate, weeklyGoal (gym days/week, default 3)
 - `users/{uid}/weights/{id}`: value (kg), date (YYYY-MM-DD)
-- `users/{uid}/exercises/{id}`: name, archived
+- `users/{uid}/exercises/{id}`: name, archived, favorite. Library exercises use the deterministic id `lib_<datasetId>` with `libId` (created lazily on first favorite / log / add-to-plan via `ensureLibExercise`); custom ones may have `custom`, `folderKey`, `equipment`
 - `users/{uid}/logs/{id}`: exerciseId, exerciseName, weight (kg), reps, sets, date
 - `users/{uid}/inbody/{id}`: date, weight, muscle, fatMass, fatPct, visceral, bmr, note, image (compressed data URL)
 - `users/{uid}/checkins/{date}`: doc id is the date (YYYY-MM-DD); existence means the user marked that day as a gym day
 - `users/{uid}/folders/{id}`: name, exerciseIds (array of exercise doc ids; an exercise can be in several folders; exercises in no folder show under "Not in a folder")
 - `users/{uid}/schedule/{id}`: name, weekday (0=Sunday..6, or null for a custom day), exerciseIds (ordered array)
+- `users/{uid}/plan/{sat|sun|mon|tue|wed|thu|fri}`: label, rest, focus (array of muscle folder keys), items (ordered `{exerciseId, targetSets, targetReps, note}`). Replaces `schedule`: the old `schedule` docs are migrated once (profile flag `planMigrated`) and left untouched; `hideUnplaced` hides the notice about custom days without a weekday
 
 Rules: `firestore.rules`. Users can only read and write their own subtree. Rules are published manually in the Firebase console.
 
@@ -36,7 +37,10 @@ Rules: `firestore.rules`. Users can only read and write their own subtree. Rules
 - A PR is a log whose weight beats all earlier logs for that exercise (`computePRs` in `src/utils.js`).
 - Weeks start on **Saturday** (`weekStart` in `src/utils.js`). Weekday numbers stored in data are still JS `getDay()` (0 = Sunday); `WEEK_ORDER` is the display order.
 - A gym day = a day with a logged lift OR a manual check-in. The weekly goal = number of days in the Plan (schedule); with no plan it falls back to `weeklyGoal` (default `WEEK_GOAL` in `src/utils.js`). Week streak counts weeks that reach the goal.
-- My lifts is organised in folders (collapsed by default). "Add exercise" inside a folder either picks existing exercises or creates a new one; deleting a folder never deletes exercises or logs.
+- Exercise library: 584 strength exercises from the public-domain Free Exercise DB (`src/data/exercises.json`, lazy-loaded; rebuild with `npm run build:exercises`). Images load from jsDelivr with a raw.githubusercontent fallback. Lifts is organised in 17 muscle folders with emoji (`src/data/muscleFolders.js`) plus "My custom"; search, popular list (`src/data/popular.js`), equipment filter and favorites. Video = only a "Watch how-to" YouTube search link (`videos.json` stays `{}`). Do not show estimated 1RM in new UI.
+- Weekly plan (`/schedule`, page `Plan`): 7 day cards Saturday→Friday; weekly goal = number of non-rest days with items. Tapping an exercise opens `ExerciseSheet` (Progress / How to / Log tabs; Plan opens Progress, Home Today opens Log). Log tab writes `logs` docs (one set each, sets:1) with steppers, sets-done counter and optional rest timer; typed values are kept per exercise in sessionStorage (`setDrafts`). Home has a `TodayCard` with "Do something else today".
+- Tests: `npm test` (vitest, `tests/`).
+- (older) My lifts is organised in folders (collapsed by default). "Add exercise" inside a folder either picks existing exercises or creates a new one; deleting a folder never deletes exercises or logs.
 - Home shows a Sat-Fri check-in row (Done / Missed / Today) and today's planned exercises from the schedule.
 - InBody images are compressed client-side and stored in the Firestore doc to stay on the free Spark plan (no Firebase Storage).
 
@@ -48,8 +52,9 @@ Rules: `firestore.rules`. Users can only read and write their own subtree. Rules
 
 ## Project layout
 - `src/AppContext.jsx`: auth, profile, unit helpers, Firestore helpers, `useCol()` hook
-- `src/pages/`: Dashboard, Body, Exercises, ExerciseDetail, Schedule, InBody, Charts, Settings, Login
-- `src/components/`: Layout, PlateBar, ChartCard, Modal
+- `src/pages/`: Dashboard, Body, Exercises, ExerciseDetail, Plan, InBody, Charts, Settings, Login
+- `src/components/`: Layout, PlateBar, ChartCard, Modal, Sheet, Stepper, `exercise/` (ExerciseSheet, LogTab, HowTo, ProgressPanel, ...), `plan/` (DayCard, PlanPicker, TodayCard, ...)
+- `src/lib/`: exercise search/data/stats/views, `plan.js`, `usePlan`, `usePlanActions`, `setDrafts`, `useFocusTrap`
 - `src/utils.js`: formulas and shared constants
 
 ## Roadmap
