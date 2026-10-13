@@ -6,6 +6,7 @@ import ChartCard from '../components/ChartCard';
 import ExerciseMedia from '../components/exercise/ExerciseMedia';
 import FavoriteButton from '../components/exercise/FavoriteButton';
 import HowTo from '../components/exercise/HowTo';
+import AddToPlanButton from '../components/plan/AddToPlanButton';
 import MuscleChips from '../components/exercise/MuscleChips';
 import { datasetIdOf, ensureLibExercise, useExerciseLibrary } from '../lib/exerciseData';
 import { COLORS, byDate, computePRs, epley, fmtDate, r1, shortDate, todayStr } from '../utils';
@@ -75,6 +76,7 @@ export default function ExerciseDetail() {
         <h1 className="page-title">{ex.name}</h1>
         <div className="seg-row">
           <FavoriteButton doc={doc} libEx={libEx} />
+          <AddToPlanButton doc={doc} libEx={libEx} />
           {!ex.virtual && (
             <>
               <button className="icon-btn" title="Rename" aria-label="Rename exercise" onClick={rename}><Pencil size={18} /></button>

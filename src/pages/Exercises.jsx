@@ -7,19 +7,11 @@ import MyCustom from '../components/exercise/MyCustom';
 import Modal from '../components/Modal';
 import { CUSTOM_FOLDER, EQUIPMENT_GROUPS, FOLDERS, FOLDER_BY_KEY, MECHANIC_LABEL, equipmentGroup, folderKeyOf } from '../data/muscleFolders';
 import { POPULAR_SET } from '../data/popular';
+import { customView, docView as makeDocView, libView, recentExerciseIds } from '../lib/exerciseViews';
 import { useExerciseLibrary } from '../lib/exerciseData';
 import { folderItems, searchIndex } from '../lib/exerciseSearch';
 
 const PAGE = 40;
-
-const libView = (ex, doc) => ({
-  key: `lib_${ex.id}`, docId: `lib_${ex.id}`, name: ex.name, lib: ex, group: equipmentGroup(ex.equipment),
-  mechanic: ex.mechanic, folder: folderKeyOf(ex), popular: POPULAR_SET.has(ex.id), doc,
-});
-const customView = (doc) => ({
-  key: doc.id, docId: doc.id, name: doc.name, lib: null, group: doc.equipment || null, mechanic: null,
-  folder: doc.folderKey || null, custom: true, doc,
-});
 
 function ExerciseCard({ v, last, showFolder }) {
   const { show, unit } = useApp();
@@ -109,19 +101,12 @@ export default function Exercises() {
     return m;
   }, [logs]);
 
-  const docView = (d) => (d.libId && byId[d.libId] ? libView(byId[d.libId], d) : customView(d));
+  const docView = (d) => makeDocView(d, byId);
   const goFolder = (k) => { setParams(k ? { folder: k } : {}); setEquip(''); setShowAll(false); setLimit(PAGE); };
 
   // ---- home data
   const favorites = useMemo(() => activeDocs.filter((d) => d.favorite).map(docView), [activeDocs, byId]); // eslint-disable-line react-hooks/exhaustive-deps
-  const recents = useMemo(() => {
-    const ids = [];
-    for (const l of [...logs].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0)))) {
-      if (!ids.includes(l.exerciseId)) ids.push(l.exerciseId);
-      if (ids.length >= 6) break;
-    }
-    return ids.map((id) => activeDocs.find((d) => d.id === id)).filter(Boolean).map(docView);
-  }, [logs, activeDocs, byId]); // eslint-disable-line react-hooks/exhaustive-deps
+  const recents = useMemo(() => recentExerciseIds(logs, 6).map((id) => activeDocs.find((d) => d.id === id)).filter(Boolean).map(docView), [logs, activeDocs, byId]); // eslint-disable-line react-hooks/exhaustive-deps
   const loggedCount = useMemo(() => {
     const c = {};
     const seen = new Set();

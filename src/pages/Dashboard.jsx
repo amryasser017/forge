@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import { Check, Flame, Trophy, X } from 'lucide-react';
 import { useApp, useCol } from '../AppContext';
 import PlateBar from '../components/PlateBar';
+import { dayKeyOf, planGoal, planHasItems } from '../lib/plan';
+import { usePlan } from '../lib/usePlan';
 import { DAY_NAMES, WEEK_GOAL, byDate, computePRs, fmtDate, progressPct, r1, todayStr, weekStart, weekStreak, ymd } from '../utils';
 
 function message(p) {
@@ -20,10 +22,10 @@ export default function Dashboard() {
   const logs = useCol('logs').items;
   const inbody = useCol('inbody').items;
   const checkins = useCol('checkins').items;
-  const schedule = useCol('schedule').items;
   const exercises = useCol('exercises').items;
-  // Weekly target = number of days in the plan; falls back to the Settings goal when there is no plan yet.
-  const goal = schedule.length || (profile.weeklyGoal ?? WEEK_GOAL);
+  const { plan } = usePlan();
+  // Weekly target = training days in the plan; falls back to the Settings goal when there is no plan yet.
+  const goal = planGoal(plan) || (profile.weeklyGoal ?? WEEK_GOAL);
 
   const sortedW = [...weights].sort(byDate);
   const current = sortedW.length ? sortedW[sortedW.length - 1].value : profile.startWeight;
@@ -46,9 +48,8 @@ export default function Dashboard() {
   const streak = weekStreak([...trained], goal);
   const today = todayStr();
   const toggleDay = (d) => (checked.has(d) ? del('checkins', d) : put('checkins', d, { date: d }));
-  const todayPlan = schedule
-    .filter((s) => s.weekday === new Date().getDay())
-    .map((s) => ({ ...s, ex: (s.exerciseIds || []).map((id) => exercises.find((x) => x.id === id)).filter((x) => x && !x.archived) }));
+  const todayDay = plan[dayKeyOf()];
+  const todayItems = todayDay.items.map((it) => ({ ...it, doc: exercises.find((x) => x.id === it.exerciseId) })).filter((x) => x.doc && !x.doc.archived);
 
   const prIds = computePRs(logs);
   const recentPRs = logs.filter((l) => prIds.has(l.id)).sort(byDate).reverse().slice(0, 5);
@@ -141,23 +142,18 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {todayPlan.length > 0 && (
-        <section className="panel">
-          <header className="panel-head"><h3>Today's plan</h3><Link to="/schedule" className="link">Edit plan</Link></header>
-          {todayPlan.map((s) => (
-            <div key={s.id}>
-              <b>{s.name}</b>
-              {s.ex.length === 0 ? <p className="muted">No exercises added yet.</p> : (
-                <ul className="rows">
-                  {s.ex.map((x) => (
-                    <li key={x.id}><Link to={`/exercises/${x.id}`} className="grow"><b>{x.name}</b></Link><Link to={`/exercises/${x.id}`} className="link">Log</Link></li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
-        </section>
-      )}
+      <section className="panel">
+        <header className="panel-head"><h3>Today</h3><Link to="/schedule" className="link">{planHasItems(plan) ? 'Edit plan' : 'Build my week'}</Link></header>
+        {todayDay.rest ? <div className="empty">Rest day. Recovery is part of the plan.</div>
+          : todayItems.length === 0 ? <div className="empty">{planHasItems(plan) ? 'Nothing planned for today.' : 'No plan yet, build your week.'}</div>
+          : (
+            <ul className="rows">
+              {todayItems.map((x) => (
+                <li key={x.exerciseId}><Link to={`/exercises/${x.exerciseId}`} className="grow"><b>{x.doc.name}</b><small>{x.targetSets} × {x.targetReps}</small></Link><Link to={`/exercises/${x.exerciseId}`} className="link">Log</Link></li>
+              ))}
+            </ul>
+          )}
+      </section>
 
       <div className="two">
         <section className="panel">
