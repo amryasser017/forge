@@ -1,8 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Archive, ArrowLeft, Pencil, Trash2, Trophy } from 'lucide-react';
 import { useApp, useCol } from '../AppContext';
 import ChartCard from '../components/ChartCard';
+import ExerciseMedia from '../components/exercise/ExerciseMedia';
+import FavoriteButton from '../components/exercise/FavoriteButton';
+import HowTo from '../components/exercise/HowTo';
+import MuscleChips from '../components/exercise/MuscleChips';
 import { datasetIdOf, ensureLibExercise, useExerciseLibrary } from '../lib/exerciseData';
 import { COLORS, byDate, computePRs, epley, fmtDate, r1, shortDate, todayStr } from '../utils';
 
@@ -13,14 +17,12 @@ export default function ExerciseDetail() {
   const { add, upd, del, show, toKg, unit } = app;
   const exercises = useCol('exercises');
   const allLogs = useCol('logs').items;
-  const ex = exercises.items.find((x) => x.id === id);
   const lib = useExerciseLibrary();
-  const libEx = lib.byId[datasetIdOf(id)];
-
-  // A library exercise opened for the first time gets its own doc (deterministic id lib_<datasetId>).
-  useEffect(() => {
-    if (!exercises.loading && !ex && libEx) ensureLibExercise(app, libEx);
-  }, [exercises.loading, ex, libEx]); // eslint-disable-line react-hooks/exhaustive-deps
+  const doc = exercises.items.find((x) => x.id === id);
+  // A library exercise you have not logged or favorited yet has no doc; it is created on first use.
+  const libId = doc?.libId ?? datasetIdOf(id);
+  const libEx = libId ? lib.byId[libId] : null;
+  const ex = doc ?? (libEx ? { id, name: libEx.name, libId: libEx.id, virtual: true } : null);
 
   const [weight, setWeight] = useState('');
   const [reps, setReps] = useState('');
@@ -28,7 +30,8 @@ export default function ExerciseDetail() {
   const [date, setDate] = useState(todayStr());
   const [pr, setPr] = useState(false);
 
-  if (exercises.loading || (!ex && (libEx || (datasetIdOf(id) && !lib.data && !lib.error)))) return <div className="page" />;
+  const waitingForLibrary = !ex && libId && !lib.data && !lib.error;
+  if (exercises.loading || waitingForLibrary) return <div className="page" />;
   if (!ex) return <div className="page"><Link to="/exercises" className="link">Back to lifts</Link><div className="panel empty">This exercise no longer exists.</div></div>;
 
   const logs = allLogs.filter((l) => l.exerciseId === id).sort(byDate);
@@ -47,6 +50,7 @@ export default function ExerciseDetail() {
     const kg = toKg(weight);
     if (kg == null) return;
     const wasPR = logs.length > 0 && kg > best;
+    if (ex.virtual) await ensureLibExercise(app, libEx);
     await add('logs', { exerciseId: id, exerciseName: ex.name, weight: kg, reps: parseInt(reps, 10) || 1, sets: parseInt(sets, 10) || 1, date });
     setPr(wasPR); if (wasPR) setTimeout(() => setPr(false), 4000);
     setWeight(''); setReps(''); setSets('');
@@ -70,11 +74,25 @@ export default function ExerciseDetail() {
       <div className="title-row">
         <h1 className="page-title">{ex.name}</h1>
         <div className="seg-row">
-          <button className="icon-btn" title="Rename" onClick={rename}><Pencil size={18} /></button>
-          <button className="icon-btn" title={ex.archived ? 'Restore' : 'Archive'} onClick={() => upd('exercises', id, { archived: !ex.archived })}><Archive size={18} /></button>
-          <button className="icon-btn danger" title="Delete" onClick={remove}><Trash2 size={18} /></button>
+          <FavoriteButton doc={doc} libEx={libEx} />
+          {!ex.virtual && (
+            <>
+              <button className="icon-btn" title="Rename" aria-label="Rename exercise" onClick={rename}><Pencil size={18} /></button>
+              <button className="icon-btn" title={ex.archived ? 'Restore' : 'Archive'} aria-label={ex.archived ? 'Restore exercise' : 'Archive exercise'} onClick={() => upd('exercises', id, { archived: !ex.archived })}><Archive size={18} /></button>
+              <button className="icon-btn danger" title="Delete" aria-label="Delete exercise" onClick={remove}><Trash2 size={18} /></button>
+            </>
+          )}
         </div>
       </div>
+
+      {libEx && (
+        <section className="panel lib-info" aria-label="About this exercise">
+          <MuscleChips ex={libEx} />
+          <ExerciseMedia ex={libEx} />
+          <h3 className="mini-title">How to do it</h3>
+          <HowTo ex={libEx} />
+        </section>
+      )}
 
       {pr && <div className="pr-banner"><Trophy size={22} /> New personal record. That is the work paying off.</div>}
 
