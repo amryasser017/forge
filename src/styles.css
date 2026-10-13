@@ -344,7 +344,7 @@ body.no-scroll { overflow: hidden; }
 .switch { flex-direction: row !important; align-items: center; gap: .6rem !important; min-height: 46px; cursor: pointer; color: var(--text); font-size: 1rem !important; }
 .switch input { width: 22px; height: 22px; min-height: 0; accent-color: var(--ember); }
 .plan-items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
-.plan-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "grip main target" "grip actions actions" "editor editor editor"; align-items: center; gap: .3rem .5rem; padding: .5rem; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; }
+.plan-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "grip main actions" "editor editor editor"; align-items: center; gap: .3rem .5rem; padding: .5rem; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; }
 .plan-item.dragging { opacity: .4; }
 .grip { grid-area: grip; display: none; color: var(--muted); cursor: grab; }
 @media (pointer: fine) { .grip { display: block; } }
@@ -357,7 +357,7 @@ body.no-scroll { overflow: hidden; }
 .target-editor { grid-area: editor; }
 .target-editor, .pick-steppers { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; padding-top: .3rem; }
 @media (min-width: 640px) {
-  .plan-item { grid-template-columns: auto minmax(0, 1fr) auto auto; grid-template-areas: "grip main target actions" "editor editor editor editor"; }
+  .plan-item { grid-template-columns: auto minmax(0, 1fr) auto auto; grid-template-areas: "grip main actions actions" "editor editor editor editor"; }
 }
 .glance { display: inline-flex; align-items: center; gap: .3rem; color: var(--muted); }
 .trend.up { color: var(--good); } .trend.down { color: var(--bad); }
