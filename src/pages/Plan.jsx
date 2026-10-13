@@ -8,16 +8,16 @@ import { useExerciseLibrary } from '../lib/exerciseData';
 import { groupLogs } from '../lib/exerciseViews';
 import { DAYS, dayKeyOf, planGoal } from '../lib/plan';
 import { usePlanActions } from '../lib/usePlanActions';
-import { useNavigate } from 'react-router-dom';
+import { useExerciseSheet } from '../components/exercise/useExerciseSheet';
 
 export default function Plan() {
-  const nav = useNavigate();
   const { profile, saveProfile } = useApp();
   const { plan, update, addExercise, applyTemplate } = usePlanActions();
   const docs = useCol('exercises').items;
   const logs = useCol('logs').items;
   const schedule = useCol('schedule').items;
   const { data, byId } = useExerciseLibrary();
+  const { open: openSheet, sheet } = useExerciseSheet();
   const today = dayKeyOf();
   const [open, setOpen] = useState(() => new Set([today]));
   const [adding, setAdding] = useState(null); // day key
@@ -53,11 +53,12 @@ export default function Plan() {
             docsById={docsById} libById={byId} logsBy={logsBy}
             onChange={(day) => update(d.key, () => day)}
             onAdd={() => setAdding(d.key)}
-            onOpenItem={(doc) => nav(`/exercises/${doc.id}`)}
+            onOpenItem={(doc, it) => openSheet(doc, { tab: 'progress', targetSets: it.targetSets })}
           />
         ))}
       </div>
 
+      {sheet}
       {adding && <PlanPicker info={DAYS.find((d) => d.key === adding)} day={plan[adding]} onAdd={(v, s, r) => addExercise(adding, v, s, r)} onClose={() => setAdding(null)} />}
       {templates && <TemplatesModal plan={plan} libData={data} onApply={applyTemplate} onClose={() => setTemplates(false)} />}
     </div>

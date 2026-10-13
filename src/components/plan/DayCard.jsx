@@ -21,7 +21,7 @@ function ItemRow({ it, i, n, doc, lib, logs, onOpen, onChange, onRemove, onMove,
       onDragEnd={() => setDragFrom(null)}
     >
       <span className="grip" aria-hidden><GripVertical size={16} /></span>
-      <button type="button" className="plan-item-main" onClick={() => doc && onOpen(doc)} disabled={!doc} aria-label={`Open ${name}`}>
+      <button type="button" className="plan-item-main" onClick={() => doc && onOpen(doc, it)} disabled={!doc} aria-label={`Open ${name}`}>
         {lib ? <ExerciseImage ex={lib} className="ex-thumb sm" /> : <span className="ex-img ex-thumb sm ex-img-empty" aria-hidden>{FOLDER_BY_KEY[doc?.folderKey]?.emoji ?? '🛠️'}</span>}
         <span className="plan-item-text"><b>{name}</b><Glance logs={logs} /></span>
       </button>
