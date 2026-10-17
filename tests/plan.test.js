@@ -95,3 +95,54 @@ describe('starter templates', () => {
     }
   });
 });
+
+import { clearDay, copyDay, dayChanged, moveDay, shiftWeek, swapDays } from '../src/lib/plan';
+
+describe('week editing', () => {
+  const mk = () => {
+    const p = Object.fromEntries(DAY_KEYS.map((k) => [k, emptyDay()]));
+    p.sat = { label: 'Chest', rest: false, focus: ['chest'], items: [{ exerciseId: 'a', targetSets: 3, targetReps: 10, note: '' }] };
+    p.sun = { label: 'Back', rest: false, focus: [], items: [{ exerciseId: 'b', targetSets: 4, targetReps: 8, note: '' }] };
+    p.fri = { ...emptyDay(), rest: true };
+    return p;
+  };
+  it('shifts the whole week forward and wraps around', () => {
+    const s = shiftWeek(mk(), 1);
+    expect(s.sun.label).toBe('Chest');
+    expect(s.mon.label).toBe('Back');
+    expect(s.sat.rest).toBe(true); // Friday wraps to Saturday
+    expect(Object.values(s).flatMap((d) => d.items)).toHaveLength(2);
+  });
+  it('shifts back and by 7 is a no-op', () => {
+    const s = shiftWeek(mk(), -1);
+    expect(s.fri.label).toBe('Chest');
+    expect(s.sat.label).toBe('Back');
+    const full = shiftWeek(mk(), 7);
+    DAY_KEYS.forEach((k) => expect(dayChanged(full[k], mk()[k])).toBe(false));
+  });
+  it('does not change its input', () => {
+    const p = mk();
+    const before = JSON.stringify(p);
+    shiftWeek(p, 3); swapDays(p, 'sat', 'sun'); moveDay(p, 'sat', 'mon'); copyDay(p, 'sat', 'mon');
+    expect(JSON.stringify(p)).toBe(before);
+  });
+  it('swaps, moves and copies whole days', () => {
+    const sw = swapDays(mk(), 'sat', 'sun');
+    expect(sw.sat.label).toBe('Back');
+    expect(sw.sun.label).toBe('Chest');
+    const mv = moveDay(mk(), 'sat', 'mon');
+    expect(mv.mon.label).toBe('Chest');
+    expect(mv.sat).toEqual(emptyDay());
+    const cp = copyDay(mk(), 'sat', 'mon');
+    expect(cp.mon.items).toEqual(mk().sat.items);
+    expect(cp.sat.label).toBe('Chest');
+    cp.mon.items[0].targetSets = 9;
+    expect(cp.sat.items[0].targetSets).toBe(3); // copies are independent
+  });
+  it('clear day removes exercises only', () => {
+    const c = clearDay(mk().sat);
+    expect(c.items).toEqual([]);
+    expect(c.label).toBe('Chest');
+    expect(c.focus).toEqual(['chest']);
+  });
+});

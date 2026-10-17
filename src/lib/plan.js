@@ -56,6 +56,30 @@ const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, Math.round(n)));
 export function setTargets(day, exerciseId, sets, reps) {
   return { ...day, items: day.items.map((i) => (i.exerciseId === exerciseId ? { ...i, targetSets: clamp(sets, 1, 20), targetReps: clamp(reps, 1, 100) } : i)) };
 }
+const cloneDay = (d) => ({ ...d, focus: [...d.focus], items: d.items.map((i) => ({ ...i })) });
+/** Whole-week moves return a new { sat..fri } plan; the input is never changed. */
+export function shiftWeek(plan, n) {
+  const k = DAY_KEYS.length;
+  const out = {};
+  DAY_KEYS.forEach((key, i) => { out[DAY_KEYS[(((i + n) % k) + k) % k]] = cloneDay(plan[key]); });
+  return out;
+}
+export function swapDays(plan, a, b) {
+  if (a === b) return plan;
+  return { ...plan, [a]: cloneDay(plan[b]), [b]: cloneDay(plan[a]) };
+}
+/** The target day gets the source day's content (replacing its own); the source becomes an empty day. */
+export function moveDay(plan, from, to) {
+  if (from === to) return plan;
+  return { ...plan, [to]: cloneDay(plan[from]), [from]: emptyDay() };
+}
+export function copyDay(plan, from, to) {
+  if (from === to) return plan;
+  return { ...plan, [to]: cloneDay(plan[from]) };
+}
+/** Removes every exercise of the day; the label, focus and rest setting stay. */
+export const clearDay = (day) => ({ ...day, items: [] });
+export const dayChanged = (a, b) => JSON.stringify(a) !== JSON.stringify(b);
 export const toggleFocus = (day, key) => ({ ...day, focus: day.focus.includes(key) ? day.focus.filter((k) => k !== key) : [...day.focus, key] });
 
 /**

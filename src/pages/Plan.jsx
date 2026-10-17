@@ -1,18 +1,21 @@
 import { useMemo, useState } from 'react';
-import { LayoutTemplate } from 'lucide-react';
+import { CalendarClock, LayoutTemplate } from 'lucide-react';
 import { useApp, useCol } from '../AppContext';
 import DayCard from '../components/plan/DayCard';
 import PlanPicker from '../components/plan/PlanPicker';
 import TemplatesModal from '../components/plan/TemplatesModal';
+import DayPickerSheet from '../components/plan/DayPickerSheet';
+import ShiftWeekSheet from '../components/plan/ShiftWeekSheet';
+import UndoToast from '../components/plan/UndoToast';
 import { useExerciseLibrary } from '../lib/exerciseData';
 import { groupLogs } from '../lib/exerciseViews';
-import { DAYS, dayKeyOf, planGoal } from '../lib/plan';
+import { DAYS, clearDay, copyDay, dayKeyOf, moveDay, planGoal, shiftWeek, swapDays } from '../lib/plan';
 import { usePlanActions } from '../lib/usePlanActions';
 import { useExerciseSheet } from '../components/exercise/useExerciseSheet';
 
 export default function Plan() {
   const { profile, saveProfile } = useApp();
-  const { plan, update, addExercise, applyTemplate } = usePlanActions();
+  const { plan, update, apply, addExercise, applyTemplate } = usePlanActions();
   const docs = useCol('exercises').items;
   const logs = useCol('logs').items;
   const schedule = useCol('schedule').items;
@@ -22,18 +25,58 @@ export default function Plan() {
   const [open, setOpen] = useState(() => new Set([today]));
   const [adding, setAdding] = useState(null); // day key
   const [templates, setTemplates] = useState(false);
+  const [shifting, setShifting] = useState(false);
+  const [picking, setPicking] = useState(null); // { kind: 'swap'|'move'|'copy', from }
+  const [toast, setToast] = useState(null);
+  const [error, setError] = useState('');
+
+  // Applies a whole new week and offers Undo, which puts the previous week back.
+  const change = async (next, text) => {
+    const prev = plan;
+    setError('');
+    try {
+      await apply(next);
+      setToast({ id: Date.now(), text, onUndo: () => apply(prev).catch(() => setError('Could not undo. Check your connection and try again.')) });
+    } catch {
+      setError('Could not save the change. Check your connection and try again.');
+    }
+  };
+  const dayName = (k) => DAYS.find((d) => d.key === k).name;
+  const onDayAction = (key, kind) => {
+    if (kind === 'clear') {
+      const n = plan[key].items.length;
+      change({ ...plan, [key]: clearDay(plan[key]) }, `Cleared ${n} exercise${n === 1 ? '' : 's'} from ${dayName(key)}`);
+    } else setPicking({ kind, from: key });
+  };
+  const pickDay = (to) => {
+    const { kind, from } = picking;
+    setPicking(null);
+    if (kind === 'swap') change(swapDays(plan, from, to), `Swapped ${dayName(from)} and ${dayName(to)}`);
+    else if (kind === 'move') change(moveDay(plan, from, to), `Moved ${dayName(from)} to ${dayName(to)}`);
+    else change(copyDay(plan, from, to), `Copied ${dayName(from)} to ${dayName(to)}`);
+    setOpen((o) => new Set([...o, to]));
+  };
+  const onChangeDay = (key, day) => {
+    // Removing an exercise can be undone too.
+    if (day.items.length < plan[key].items.length) change({ ...plan, [key]: day }, 'Exercise removed');
+    else update(key, () => day);
+  };
 
   const docsById = useMemo(() => Object.fromEntries(docs.map((d) => [d.id, d])), [docs]);
   const logsBy = useMemo(() => groupLogs(logs), [logs]);
   const flip = (k) => setOpen((o) => { const n = new Set(o); n.has(k) ? n.delete(k) : n.add(k); return n; });
   const goal = planGoal(plan);
+  const planHasItemsAny = (p) => DAYS.some((d) => p[d.key].items.length > 0 || p[d.key].rest);
   const unplaced = schedule.filter((s) => s.weekday == null).length;
 
   return (
     <div className="page">
       <div className="title-row">
         <h1 className="page-title">Weekly plan</h1>
-        <button className="btn ghost" onClick={() => setTemplates(true)}><LayoutTemplate size={16} /> Starter plans</button>
+        <div className="seg-row">
+          <button className="btn ghost" onClick={() => setShifting(true)} disabled={!planHasItemsAny(plan)}><CalendarClock size={16} /> Shift week</button>
+          <button className="btn ghost" onClick={() => setTemplates(true)}><LayoutTemplate size={16} /> Starter plans</button>
+        </div>
       </div>
       <p className="muted">
         {goal > 0 ? `${goal} training day${goal === 1 ? '' : 's'} a week. That is your weekly gym goal.` : 'Build your week: open a day and add exercises, or start from a ready-made plan. The same plan repeats every week.'}
@@ -51,7 +94,8 @@ export default function Plan() {
             key={d.key} info={d} day={plan[d.key]} isToday={d.key === today}
             open={open.has(d.key)} onToggle={() => flip(d.key)}
             docsById={docsById} libById={byId} logsBy={logsBy}
-            onChange={(day) => update(d.key, () => day)}
+            onChange={(day) => onChangeDay(d.key, day)}
+            onDayAction={(kind) => onDayAction(d.key, kind)}
             onAdd={() => setAdding(d.key)}
             onOpenItem={(doc, it) => openSheet(doc, { tab: 'progress', targetSets: it.targetSets })}
           />
@@ -59,6 +103,10 @@ export default function Plan() {
       </div>
 
       {sheet}
+      {error && <div className="panel notice" role="alert"><span>{error}</span></div>}
+      {shifting && <ShiftWeekSheet plan={plan} onClose={() => setShifting(false)} onApply={(n) => { setShifting(false); change(shiftWeek(plan, n), `Shifted the week ${n > 0 ? n + ' later' : -n + ' earlier'}`); }} />}
+      {picking && <DayPickerSheet kind={picking.kind} from={picking.from} plan={plan} onPick={pickDay} onClose={() => setPicking(null)} />}
+      <UndoToast toast={toast} onDismiss={() => setToast(null)} />
       {adding && <PlanPicker info={DAYS.find((d) => d.key === adding)} day={plan[adding]} onAdd={(v, s, r) => addExercise(adding, v, s, r)} onClose={() => setAdding(null)} />}
       {templates && <TemplatesModal plan={plan} libData={data} onApply={applyTemplate} onClose={() => setTemplates(false)} />}
     </div>
