@@ -405,3 +405,21 @@ body.no-scroll { overflow: hidden; }
 .link-btn { min-height: 44px; margin-top: .4rem; background: none; border: 0; color: var(--volt); font-weight: 600; cursor: pointer; text-decoration: underline; }
 .pick-list { list-style: none; margin: .5rem 0 0; padding: 0; display: flex; flex-direction: column; gap: .4rem; }
 .log-steppers > div { display: flex; flex-direction: column; align-items: flex-start; gap: .3rem; }
+
+/* Plan: week editing */
+.day-actions { display: flex; flex-wrap: wrap; gap: .4rem; }
+.day-actions .btn { min-height: 44px; }
+.danger-btn { color: #ff7a7a; }
+.danger-btn:disabled { opacity: .4; }
+.undo-toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(4.8rem + env(safe-area-inset-bottom)); z-index: 60; display: flex; align-items: center; gap: .6rem; max-width: min(92vw, 460px); padding: .55rem .8rem; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 8px 28px rgba(0, 0, 0, .5); }
+.undo-toast button { min-height: 44px; min-width: 44px; background: none; border: 0; color: var(--volt); font-weight: 800; cursor: pointer; }
+.undo-toast .undo-x { color: var(--muted); font-size: 1.3rem; }
+@media (min-width: 860px) { .undo-toast { bottom: 1.5rem; } }
+.shift-row { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; margin: .6rem 0; }
+.shift-preview { margin: .4rem 0 1rem; font-size: .85rem; }
+.shift-line { display: grid; grid-template-columns: 26% 1fr 1fr; gap: .4rem; padding: .45rem .1rem; border-bottom: 1px solid var(--line); min-width: 0; }
+.shift-line > * { min-width: 0; overflow-wrap: anywhere; }
+.shift-line.head { color: var(--muted); font-weight: 600; }
+.day-pick { width: 100%; min-height: 56px; }
+.undo-toast { width: max-content; min-width: min(300px, 92vw); }
+.undo-toast span { flex: 1; }

@@ -3,6 +3,8 @@ import { Timer, Trophy } from 'lucide-react';
 import { useApp, useCol } from '../../AppContext';
 import Stepper from '../Stepper';
 import { ensureLibExercise } from '../../lib/exerciseData';
+import { DEFAULT_REPS, DEFAULT_SETS, addItem, dayKeyOf, hasItem } from '../../lib/plan';
+import { usePlanActions } from '../../lib/usePlanActions';
 import { bestWeight, lastLog, setsOn } from '../../lib/exerciseStats';
 import { getDraft, setDraft } from '../../lib/setDrafts';
 import { todayStr } from '../../utils';
@@ -35,6 +37,10 @@ export default function LogTab({ ex, libEx, logs, targetSets }) {
   const [rest, setRest] = useState(0);
   const [useTimer, setUseTimer] = useState(() => { try { return localStorage.getItem('forge.restTimer') === '1'; } catch { return false; } });
   const [busy, setBusy] = useState(false);
+  const { plan, update } = usePlanActions();
+  const todayKey = dayKeyOf();
+  const inToday = hasItem(plan[todayKey], ex.id);
+  const [added, setAdded] = useState(false);
   const alive = useRef(true);
   useEffect(() => () => { alive.current = false; }, []);
 
@@ -56,6 +62,15 @@ export default function LogTab({ ex, libEx, logs, targetSets }) {
       if (useTimer) setRest((n) => n + 1);
     } finally { if (alive.current) setBusy(false); }
   }
+  async function addToToday() {
+    if (busy) return;
+    setBusy(true);
+    try {
+      if (ex.virtual && libEx) await ensureLibExercise(app, libEx);
+      await update(todayKey, (d) => addItem({ ...d, rest: false }, ex.id, DEFAULT_SETS, last?.reps ?? DEFAULT_REPS));
+      if (alive.current) setAdded(true);
+    } finally { if (alive.current) setBusy(false); }
+  }
   const toggleTimer = (on) => {
     setUseTimer(on);
     if (!on) setRest(0);
@@ -74,6 +89,12 @@ export default function LogTab({ ex, libEx, logs, targetSets }) {
         <div><small className="muted">Reps</small><Stepper label="Reps" value={reps} onChange={(r) => edit(weight, r)} min={1} max={100} /></div>
       </div>
       <button type="button" className="btn primary big-btn" onClick={log} disabled={busy}>Log set</button>
+      {!inToday && (
+        <button type="button" className="btn ghost" onClick={addToToday} disabled={busy}>
+          {plan[todayKey].rest ? "Add to today's plan (turns rest day off)" : "Add to today's plan"}
+        </button>
+      )}
+      {inToday && added && <p className="muted" role="status">Added to today's plan.</p>}
       <label className="switch">
         <input type="checkbox" checked={useTimer} onChange={(e) => toggleTimer(e.target.checked)} />
         <span>Rest timer ({REST_SECONDS}s)</span>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowDown, ArrowUp, ChevronDown, GripVertical, Plus, X } from 'lucide-react';
+import { ArrowDown, ArrowLeftRight, ArrowUp, ChevronDown, Copy, GripVertical, MoveRight, Plus, Trash2, X } from 'lucide-react';
 import ExerciseImage from '../exercise/ExerciseImage';
 import Glance from '../exercise/Glance';
 import Stepper from '../Stepper';
@@ -39,7 +39,7 @@ function ItemRow({ it, i, n, doc, lib, logs, onOpen, onChange, onRemove, onMove,
 }
 
 /** One weekday of the plan: label, rest toggle, focus muscles and the ordered exercises. */
-export default function DayCard({ info, day, isToday, open, onToggle, docsById, libById, logsBy, onChange, onAdd, onOpenItem }) {
+export default function DayCard({ info, day, isToday, open, onToggle, docsById, libById, logsBy, onChange, onAdd, onOpenItem, onDayAction }) {
   const [label, setLabel] = useState(day.label);
   const [dragFrom, setDragFrom] = useState(null);
   useEffect(() => setLabel(day.label), [day.label]);
@@ -68,6 +68,13 @@ export default function DayCard({ info, day, isToday, open, onToggle, docsById, 
               <input type="checkbox" checked={day.rest} onChange={(e) => onChange({ ...day, rest: e.target.checked })} />
               <span>Rest day</span>
             </label>
+          </div>
+
+          <div className="day-actions" role="group" aria-label={`${info.name} actions`}>
+            <button type="button" className="btn ghost" onClick={() => onDayAction('move')}><MoveRight size={16} /> Move day</button>
+            <button type="button" className="btn ghost" onClick={() => onDayAction('swap')}><ArrowLeftRight size={16} /> Swap</button>
+            <button type="button" className="btn ghost" onClick={() => onDayAction('copy')}><Copy size={16} /> Copy</button>
+            <button type="button" className="btn ghost danger-btn" disabled={n === 0} onClick={() => onDayAction('clear')}><Trash2 size={16} /> Clear day</button>
           </div>
 
           {day.rest ? (

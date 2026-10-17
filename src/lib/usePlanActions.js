@@ -1,6 +1,6 @@
 import { useMemo, useRef } from 'react';
 import { useApp, useCol } from '../AppContext';
-import { DAY_KEYS, addItem, emptyDay } from './plan';
+import { DAY_KEYS, addItem, dayChanged, emptyDay } from './plan';
 import { ensureLibExercise, libDocId } from './exerciseData';
 import { usePlan } from './usePlan';
 
@@ -22,6 +22,19 @@ export function usePlanActions() {
     return {
       plan,
       save,
+      /** Replace several days at once with a full { sat..fri } plan; only the days that differ are written. */
+      async apply(next) {
+        const before = planRef.current;
+        const changed = DAY_KEYS.filter((k) => dayChanged(before[k], next[k]));
+        if (changed.length === 0) return;
+        planRef.current = { ...before, ...Object.fromEntries(changed.map((k) => [k, next[k]])) };
+        try {
+          await Promise.all(changed.map((k) => app.merge('plan', k, next[k])));
+        } catch (e) {
+          planRef.current = before;
+          throw e;
+        }
+      },
       /** Change a day with fn(day) -> day. */
       update: (key, fn) => save(key, fn(planRef.current[key])),
       /** v = a view from exerciseViews (library or custom). Library docs are created on first use. */
