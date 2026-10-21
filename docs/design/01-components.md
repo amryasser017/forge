@@ -12,7 +12,7 @@ Rules: (R1) one responsibility per component, (R2) one owner per collection, oth
 | C2 | Data Store | The only code that talks to Firestore; live subscriptions | none | IDataStore | (Firebase SDK) |
 | C3 | Exercise Library | Dataset, search, muscle folders, media, favorites, custom exercises, user folders | `exercises`, `folders` | IExerciseCatalog, IExerciseSearch | IDataStore, IDates |
 | C4 | Workout Logging | Log sets, sets-done counter, rest timer, drafts, history | `logs` | ILogger, ILogReader | IDataStore, IExerciseCatalog, IUnits, IDates |
-| C5 | Progress & Analytics | PRs, trends, best weight, charts data | none (derived) | IProgress | ILogReader, IBodyReader, IInBodyReader, IUnits |
+| C5 | Progress & Analytics | PRs, trends, best weight, progress views | none (derived) | IProgress | IUnits, IDates (pure functions: callers pass the logs in) |
 | C6 | Weekly Plan | 7-day plan, templates, shift/move/swap/copy/clear, undo, legacy schedule migration | `plan`, `schedule` (legacy, read-only) | IPlan | IDataStore, IExerciseCatalog, IProgress (glance) |
 | C7 | Attendance & Goals | Gym days, check-ins, weekly goal, week streak | `checkins` | IAttendance | IDataStore, ILogReader, IPlan, IProfile, IDates |
 | C8 | Body Tracking | Weigh-ins, goal progress % | `weights` | IBodyTracker, IBodyReader | IDataStore, IProfile, IUnits |
@@ -22,7 +22,7 @@ Rules: (R1) one responsibility per component, (R2) one owner per collection, oth
 | C12 | App Shell & Composition Views | Routing, layout/nav, Dashboard, Exercise detail, Exercise sheet, Charts and Settings pages | none | (top level) | all of the above |
 | C13 | Crew & Leaderboard (future) | Opt-in sharing and ranking | `crews` (new) | ICrew | IProgress, IDataStore, IProfile |
 
-Dependency direction: C12 -> C3..C9 -> C2 / C10 / C11. No cycles (C4 does not know C6; C5 reads logs only through C4).
+Dependency direction: C12 -> C3..C9 -> C2 / C10 / C11. No cycles: C5 receives logs as arguments (it does not call C4), C4 uses C5 and C3, C6 uses C3 and C5, C2 receives the uid from the shell (no dependency on C1). See docs/Forge_Component_Spec.docx for the full provided/required lists.
 
 ## File ownership (current file -> component)
 

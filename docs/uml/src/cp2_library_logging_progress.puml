@@ -7,8 +7,6 @@ component "C3 Exercise Library" as C3
 component "C4 Workout Logging" as C4
 component "C5 Progress & Analytics" as C5
 component "C6 Weekly Plan" as C6
-component "C8 Body Tracking" as C8
-component "C9 InBody Reports" as C9
 component "C2 Data Store" as C2
 component "C12 Views\n(Exercise sheet, detail)" as C12
 
@@ -18,8 +16,6 @@ interface "ILogger" as ILG
 interface "ILogReader" as ILR
 interface "IProgress" as IPR
 interface "IDataStore" as IDS
-interface "IBodyReader" as IBR
-interface "IInBodyReader" as IIR
 
 C3 -up- IEC
 C3 -up- IES
@@ -30,17 +26,13 @@ C5 -up- IPR
 C3 ..> IDS
 C4 ..> IDS
 C4 ..> IEC
-C5 ..> ILR
-C5 ..> IBR
-C5 ..> IIR
+C4 ..> IPR
 C6 ..> IEC
 C6 ..> IES
 C6 ..> IPR
 C12 ..> IEC
 C12 ..> ILG
 C12 ..> IPR
-C8 -up- IBR
-C9 -up- IIR
 C2 -up- IDS
 
 note right of IEC
