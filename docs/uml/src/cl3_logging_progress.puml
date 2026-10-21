@@ -1,0 +1,98 @@
+@startuml
+!include style.iuml
+title Class Diagram 3 of 7: Workout Logging (C4) and Progress & Analytics (C5)
+skinparam classAttributeIconSize 0
+
+class LogEntry {
+  +id : String
+  +exerciseId : String
+  +exerciseName : String
+  +weight : Number [kg]
+  +reps : Number
+  +sets : Number
+  +date : String [YYYY-MM-DD]
+  +createdAt : Timestamp
+}
+class QuickLogger <<LogTab>> {
+  -weight : Number
+  -reps : Number
+  -pr : Boolean
+  -useTimer : Boolean
+  +log()
+  +addToToday()
+  +toggleTimer(on)
+}
+class SetDraft {
+  +weight : Number
+  +reps : Number
+  +getDraft(exerciseId)
+  +setDraft(exerciseId, values)
+}
+class RestTimer {
+  +seconds : Number = 90
+  +enabled : Boolean
+}
+class LogReader {
+  +groupLogs(logs)
+  +recentExerciseIds(logs, n)
+  +setsOn(logs, date)
+}
+class SessionSummary {
+  +date : String
+  +top : Number
+  +sets : Number
+}
+class ProgressStats <<utility>> {
+  +sessionsOf(logs)
+  +bestWeight(logs)
+  +lastLog(logs)
+  +lastSets(logs, k)
+  +trendOf(logs)
+  +computePRs(logs)
+  +byDateAsc(a, b)
+  +epley(weight, reps)
+}
+enum Trend {
+  up
+  down
+  flat
+}
+class ProgressPanel <<view>> {
+  +logs : LogEntry[]
+}
+class Glance <<view>> {
+  +logs : LogEntry[]
+}
+class TrendArrow <<view>> {
+  +trend : Trend
+}
+class ExerciseSheet <<view>> {
+  +tab : progress | howto | log
+  +targetSets : Number
+  +useExerciseSheet()
+}
+class ExerciseDoc
+
+ExerciseDoc "1" <-- "*" LogEntry : exerciseId
+QuickLogger ..> LogEntry : creates one per set
+QuickLogger ..> SetDraft : keeps unsaved values
+QuickLogger ..> RestTimer : optional
+QuickLogger ..> ProgressStats : PR check, last session
+QuickLogger ..> LogReader : sets-done counter
+ProgressStats ..> SessionSummary : sessionsOf
+ProgressStats ..> Trend : trendOf
+ProgressStats ..> LogEntry : reads
+ProgressPanel ..> ProgressStats
+Glance ..> ProgressStats
+Glance ..> TrendArrow
+ProgressPanel ..> TrendArrow
+ExerciseSheet ..> ProgressPanel
+ExerciseSheet ..> QuickLogger
+LogReader ..> LogEntry : reads
+note right of ProgressStats
+  PR = weight beats all earlier logs
+  of the same exercise.
+  Trend: latest session vs the average of
+  up to 3 earlier sessions, under 2% = flat.
+end note
+@enduml

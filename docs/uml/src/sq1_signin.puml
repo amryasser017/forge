@@ -1,0 +1,50 @@
+@startuml
+!include style.iuml
+title Sequence 1 of 8: Sign in (email or Google) and first-time profile (UC-01, UC-02)
+skinparam sequenceMessageAlign left
+actor "athlete : Athlete" as A
+participant "login : LoginView" as L
+participant "auth : FirebaseAuth" as FA
+participant "app : AppProvider" as AP
+participant "db : Firestore" as DB
+participant "shell : App" as APP
+
+A -> L : submit(email, password)
+activate L
+alt mode = signup
+  L -> FA : createUserWithEmailAndPassword(auth, email, password)
+  FA --> L : credential
+  opt name not empty
+    L -> FA : updateProfile(user, displayName)
+  end
+else mode = login
+  L -> FA : signInWithEmailAndPassword(auth, email, password)
+else Google button
+  L -> FA : signInWithPopup(auth, googleProvider)
+end
+alt sign-in fails
+  FA --> L : error code
+  L -> L : friendly(code)
+  L --> A : show error message
+else success
+  FA --> AP : onAuthStateChanged(user)
+  deactivate L
+  activate AP
+  AP -> DB : onSnapshot(users/{uid})
+  alt profile document missing
+    DB --> AP : snapshot (not found)
+    AP -> DB : setDoc(users/{uid}, name, unit "kg", empty goal, createdAt)
+    DB --> AP : snapshot (profile)
+  else profile exists
+    DB --> AP : snapshot (profile)
+  end
+  AP -> AP : setProfile(profile)
+  deactivate AP
+  AP --> APP : user and profile available
+  APP --> A : show Layout and routes (Home)
+end
+note over APP
+  While user is loading or the profile is missing, App shows the splash screen.
+  With no user, App shows the Login screen.
+end note
+@enduml

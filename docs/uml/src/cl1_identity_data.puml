@@ -1,0 +1,69 @@
+@startuml
+!include style.iuml
+title Class Diagram 1 of 7: Identity & Profile (C1) and Data Store (C2)
+skinparam classAttributeIconSize 0
+
+class FirebaseClient {
+  +auth : Auth
+  +db : Firestore
+  +googleProvider : GoogleAuthProvider
+}
+class AuthSession {
+  +user : FirebaseUser
+  +signUp(name, email, password)
+  +signIn(email, password)
+  +signInWithGoogle()
+  +signOut()
+  +ensureProfile()
+}
+class UserProfile {
+  +name : String
+  +unit : "kg" | "lb"
+  +startWeight : Number [kg]
+  +targetWeight : Number [kg]
+  +targetDate : String
+  +weeklyGoal : Number = 3
+  +planMigrated : Boolean
+  +hideUnplaced : Boolean
+  +createdAt : Timestamp
+}
+class DataStore {
+  +add(collection, data)
+  +put(collection, id, data)
+  +merge(collection, id, data)
+  +ensureDoc(collection, id, data)
+  +upd(collection, id, data)
+  +del(collection, id)
+  +saveProfile(data)
+}
+class CollectionSubscription {
+  +name : String
+  +items : Document[]
+  +loading : Boolean
+  +useCol(name)
+}
+class LoginView <<view>> {
+  -mode : "login" | "signup"
+  -error : String
+  +submit()
+  +google()
+}
+class SettingsView <<view>> {
+  +saveName()
+  +setUnit(unit)
+  +setWeeklyGoal(n)
+}
+
+AuthSession --> FirebaseClient : uses auth
+DataStore --> FirebaseClient : uses db
+AuthSession "1" -- "1" UserProfile : creates on first sign-in
+UserProfile "1" <-- "1" DataStore : saveProfile
+CollectionSubscription ..> DataStore : reads users/{uid}/{name}
+LoginView ..> AuthSession
+SettingsView ..> DataStore
+SettingsView ..> AuthSession : signOut
+note bottom of UserProfile
+  Document users/{uid}. Created with name from the
+  account (or email prefix), unit kg, empty goal.
+end note
+@enduml

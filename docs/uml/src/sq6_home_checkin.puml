@@ -1,0 +1,47 @@
+@startuml
+!include style.iuml
+title Sequence 6 of 8: Load Home, weekly goal and check-in (UC-15, UC-16)
+skinparam sequenceMessageAlign left
+actor "athlete : Athlete" as A
+participant "home : DashboardView" as H
+participant "store : DataStore" as DS
+participant "plan : PlanService" as PL
+participant "stats : ProgressStats" as PS
+participant "rules : AttendanceRules" as AR
+participant "today : TodayCard" as T
+participant "db : Firestore" as DB
+
+A -> H : open Home
+H -> DS : useCol("weights"), useCol("logs"), useCol("inbody"), useCol("checkins")
+DS -> DB : onSnapshot for each collection
+DB --> H : items (live)
+H -> PL : usePlan()
+PL --> H : plan
+H -> H : current weight = latest weigh-in (or start weight)
+H -> H : pct = progressPct(start, current, target)
+H -> AR : weekStart(todayStr())
+AR --> H : Saturday of this week
+H -> H : trained days = logged dates + check-in ids
+H -> H : goal = planGoal(plan) or profile.weeklyGoal (default 3)
+H -> AR : weekStreak(trained days, goal)
+AR --> H : streak
+H -> PS : computePRs(logs)
+PS --> H : set of PR log ids (last 5 shown)
+H -> T : render TodayCard
+T -> T : day = plan[dayKeyOf()], items with sets-done = setsOn(logs, today)
+H --> A : progress bar, "x/goal" gym days, streak, week row, Today list, PRs, InBody
+== Check in a day ==
+A -> H : tap a day in the week row
+alt day has logged sets and no check-in
+  H --> A : disabled (done through a logged lift)
+else future day
+  H --> A : disabled
+else day already checked in
+  H -> DS : del("checkins", date)
+  DS -> DB : deleteDoc(checkins/date)
+else not done yet
+  H -> DS : put("checkins", date, {date})
+  DS -> DB : setDoc(checkins/date, {date, createdAt})
+end
+DB --> H : live snapshot, row and counters update
+@enduml

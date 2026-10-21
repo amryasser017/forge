@@ -1,0 +1,48 @@
+@startuml
+!include style.iuml
+title Sequence 2 of 8: Log a set from the exercise sheet (UC-13)
+skinparam sequenceMessageAlign left
+actor "athlete : Athlete" as A
+participant "sheet : ExerciseSheet" as S
+participant "logger : LogTab" as LG
+participant "draft : SetDrafts" as D
+participant "stats : ProgressStats" as PS
+participant "store : DataStore" as DS
+participant "db : Firestore" as DB
+
+A -> S : open exercise (tab Log)
+S -> LG : render(ex, libEx, logs, targetSets)
+LG -> D : getDraft(ex.id)
+D --> LG : draft or none
+LG -> PS : lastLog(logs)
+PS --> LG : last set
+LG --> A : weight and reps prefilled (draft, else last session, else 0 and 8)
+A -> LG : change weight / reps (steppers)
+LG -> D : setDraft(ex.id, {weight, reps})
+A -> LG : tap "Log set"
+activate LG
+LG -> LG : kg = toKg(weight)
+LG -> PS : bestWeight(logs)
+PS --> LG : best
+LG -> LG : wasPR = logs.length > 0 and kg > best
+opt exercise is a library exercise without a document
+  LG -> DS : ensureLibExercise(libEx)
+  DS -> DB : getDoc(exercises/lib_id)
+  alt document missing
+    DS -> DB : setDoc(exercises/lib_id, name, libId, favorite false, archived false)
+  end
+end
+LG -> DS : add("logs", {exerciseId, exerciseName, weight kg, reps, sets 1, date today})
+DS -> DB : addDoc(users/{uid}/logs, ..., createdAt)
+DB --> DS : ok
+LG -> D : setDraft(ex.id, null)
+opt wasPR
+  LG --> A : show "New personal record" for 4 seconds
+end
+opt rest timer enabled
+  LG --> A : start 90 second countdown
+end
+deactivate LG
+DB --> LG : live snapshot (useCol logs)
+LG --> A : counter increases, e.g. 2/3 sets done
+@enduml

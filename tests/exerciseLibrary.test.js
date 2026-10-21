@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import data from '../src/data/exercises.json';
-import { POPULAR_IDS, POPULAR_SET } from '../src/data/popular';
-import { FOLDERS, FOLDER_BY_KEY, equipmentGroup, folderKeyOf, EQUIPMENT_GROUPS } from '../src/data/muscleFolders';
-import { buildIndex, expandQuery, folderItems, searchIndex, tokens } from '../src/lib/exerciseSearch';
-import { datasetIdOf, imageUrls, libDocId } from '../src/lib/exerciseData';
+import data from '../src/library/data/exercises.json';
+import { POPULAR_IDS, POPULAR_SET } from '../src/library/data/popular';
+import { FOLDERS, FOLDER_BY_KEY, equipmentGroup, folderKeyOf, EQUIPMENT_GROUPS } from '../src/library/data/muscleFolders';
+import { buildIndex, expandQuery, folderItems, searchIndex, tokens } from '../src/library/exerciseSearch';
+import { datasetIdOf, imageUrls, libDocId } from '../src/library/exerciseData';
 
 const index = buildIndex(data, POPULAR_SET);
 const names = (list) => list.map((e) => e.name);

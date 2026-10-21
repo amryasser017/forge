@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import data from '../src/data/exercises.json';
-import { TEMPLATES, templateNames } from '../src/data/planTemplates';
-import { DAYS, DAY_KEYS, addItem, emptyDay, migrateSchedule, moveItem, normalizeDay, planFromDocs, planGoal, removeItem, setTargets, toggleFocus } from '../src/lib/plan';
-import { FOLDER_BY_KEY } from '../src/data/muscleFolders';
+import data from '../src/library/data/exercises.json';
+import { TEMPLATES, templateNames } from '../src/plan/planTemplates';
+import { DAYS, DAY_KEYS, addItem, emptyDay, migrateSchedule, moveItem, normalizeDay, planFromDocs, planGoal, removeItem, setTargets, toggleFocus } from '../src/plan/plan';
+import { FOLDER_BY_KEY } from '../src/library/data/muscleFolders';
 
 describe('plan days', () => {
   it('lists the week Saturday to Friday', () => {
@@ -96,7 +96,7 @@ describe('starter templates', () => {
   });
 });
 
-import { clearDay, copyDay, dayChanged, moveDay, shiftWeek, swapDays } from '../src/lib/plan';
+import { clearDay, copyDay, dayChanged, moveDay, shiftWeek, swapDays } from '../src/plan/plan';
 
 describe('week editing', () => {
   const mk = () => {

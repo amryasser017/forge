@@ -1,0 +1,74 @@
+@startuml
+!include style.iuml
+title Class Diagram 5 of 7: Attendance (C7), Body Tracking (C8) and InBody (C9)
+skinparam classAttributeIconSize 0
+
+class CheckIn {
+  +id : String [date YYYY-MM-DD]
+  +date : String
+  +createdAt : Timestamp
+}
+class AttendanceRules <<utility>> {
+  +WEEK_GOAL : Number = 3
+  +weekStart(date)
+  +weekStreak(dates, goal)
+}
+class GymDay <<derived>> {
+  +date : String
+  +hasLoggedSet : Boolean
+  +hasCheckIn : Boolean
+}
+class WeightEntry {
+  +id : String
+  +value : Number [kg]
+  +date : String
+  +createdAt : Timestamp
+}
+class BodyGoal <<in UserProfile>> {
+  +startWeight : Number [kg]
+  +targetWeight : Number [kg]
+  +targetDate : String
+}
+class BodyProgress <<utility>> {
+  +progressPct(start, current, target)
+}
+class InBodyReport {
+  +id : String
+  +date : String
+  +weight : Number
+  +muscle : Number
+  +fatMass : Number
+  +fatPct : Number
+  +visceral : Number
+  +bmr : Number
+  +note : String
+  +image : String [compressed data URL]
+}
+class InBodyMetric {
+  +key : String
+  +label : String
+  +kind : "mass" | "%" | "kcal" | ""
+  +goodUp : Boolean | null
+}
+class ImageCompressor {
+  +compressImage(file, max = 1200, quality = 0.74)
+}
+class LogEntry
+class UserProfile
+class WeeklyPlan
+
+GymDay ..> LogEntry : any set that day
+GymDay ..> CheckIn : or manual check-in
+AttendanceRules ..> GymDay : counts weeks reaching goal
+AttendanceRules ..> WeeklyPlan : goal = planGoal
+AttendanceRules ..> UserProfile : fallback weeklyGoal
+UserProfile "1" *-- "1" BodyGoal
+BodyProgress ..> BodyGoal
+BodyProgress ..> WeightEntry : latest value
+InBodyReport "*" ..> "6" InBodyMetric : fields
+InBodyReport ..> ImageCompressor : image
+note right of CheckIn
+  Document id = date. Existence means the
+  athlete marked that day as a gym day.
+end note
+@enduml

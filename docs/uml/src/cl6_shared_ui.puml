@@ -1,0 +1,78 @@
+@startuml
+!include style.iuml
+title Class Diagram 6 of 7: Units & Dates (C10) and UI Kit (C11)
+skinparam classAttributeIconSize 0
+
+class Units <<utility>> {
+  +KG_PER_LB : Number = 0.45359237
+  +show(kg)
+  +toKg(value)
+  +r1(n)
+}
+class Dates <<utility>> {
+  +DAY_NAMES : String[7]
+  +WEEK_ORDER : [6,0,1,2,3,4,5]
+  +ymd(date)
+  +todayStr()
+  +fmtDate(s, opts)
+  +shortDate(s)
+  +weekStart(s)
+  +byDate(a, b)
+}
+class Sheet {
+  +title : String
+  +onClose()
+  +headerExtra : Node
+}
+class Modal {
+  +title : String
+  +onClose()
+  +wide : Boolean
+}
+class Stepper {
+  +label : String
+  +value : Number
+  +onChange(n)
+  +min : Number
+  +max : Number
+  +step : Number
+  +decimals : Number
+  +suffix : String
+}
+class UndoToast {
+  +toast : {id, text, onUndo}
+  +onDismiss()
+}
+class PlateBar {
+  +pct : Number
+  +start : Number
+  +current : Number
+  +target : Number
+  +unit : String
+}
+class ChartCard {
+  +title : String
+  +subtitle : String
+  +data : Row[]
+  +series : Series[]
+  +defaultType : "bar"
+  +defaultZoom : Boolean
+  +extra : Node
+}
+class FocusTrap <<hook>> {
+  +useFocusTrap(ref, onEscape)
+}
+class Theme {
+  +COLORS : ember, volt, gold
+  +fonts : Big Shoulders Display, Figtree
+  +styles.css
+}
+
+Sheet ..> FocusTrap
+ChartCard ..> Theme
+PlateBar ..> Theme
+note bottom of Dates
+  Weeks start on Saturday. Stored weekday numbers use
+  JS getDay() (0 = Sunday); WEEK_ORDER is the display order.
+end note
+@enduml
