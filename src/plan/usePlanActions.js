@@ -1,5 +1,5 @@
 import { useMemo, useRef } from 'react';
-import { useDataStore } from '../datastore/DataStore';
+import { useDataStore } from '@forge/datastore';
 import { useExerciseDocs } from '../library/useExerciseDocs';
 import { DAY_KEYS, addItem, dayChanged, emptyDay } from './plan';
 import { ensureLibExercise, libDocId } from '../library/exerciseData';

@@ -1,6 +1,6 @@
 // Identity (C1), part 2: the profile document users/{uid}. Needs IDataStore, so it is mounted inside <DataStoreProvider>.
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { useDataStore } from '../datastore/DataStore';
+import { useDataStore } from '@forge/datastore';
 
 const Ctx = createContext(null);
 

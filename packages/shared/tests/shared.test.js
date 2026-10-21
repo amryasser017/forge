@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { makeUnits, KG_PER_LB } from '../src/shared/units';
-import { DAY_NAMES, WEEK_ORDER, byDate, fmtDate, shortDate, weekStart, ymd } from '../src/shared/dates';
+import { makeUnits, KG_PER_LB, DAY_NAMES, WEEK_ORDER, byDate, fmtDate, shortDate, weekStart, ymd } from '@forge/shared';
 
 describe('units (C10)', () => {
   it('kg shows and parses as is', () => {

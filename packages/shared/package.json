@@ -1,0 +1,14 @@
+{
+  "name": "@forge/shared",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Units (kg/lb) and dates (YYYY-MM-DD, Saturday-first week)",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1"
+  }
+}

@@ -39,6 +39,13 @@ class Stepper {
   +decimals : Number
   +suffix : String
 }
+class ErrorBoundary {
+  +fallback(error, reset)
+  +resetKey : any
+  +onError(error, info)
+  +title : String
+  +reset()
+}
 class UndoToast {
   +toast : {id, text, onUndo}
   +onDismiss()
@@ -69,6 +76,7 @@ class Theme {
 }
 
 Sheet ..> FocusTrap
+Modal ..> FocusTrap
 ChartCard ..> Theme
 PlateBar ..> Theme
 note bottom of Dates

@@ -3,13 +3,10 @@ import { useExerciseDocs } from '../../library/useExerciseDocs';
 import { useLogs } from '../../logging/useLogs';
 import { useReports } from '../../inbody/useReports';
 import { useWeights } from '../../body/useWeights';
-import { useUnits } from '../../shared/UnitsProvider';
-import ChartCard from '../../ui/ChartCard';
-import { COLORS } from '../../ui/colors';
+import { useUnits, byDate, shortDate, weekStart, r1 } from '@forge/shared';
+import { ChartCard, COLORS } from '@forge/ui';
 import { IN_METRICS } from '../../inbody/inbody';
-import { byDate, shortDate, weekStart } from '../../shared/dates';
 import { epley } from '../../progress/prs';
-import { r1 } from '../../shared/units';
 
 export default function Charts() {
   const { show, unit } = useUnits();

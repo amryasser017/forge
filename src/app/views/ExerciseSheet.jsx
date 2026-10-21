@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useLogs } from '../../logging/useLogs';
-import Sheet from '../../ui/Sheet';
+import { Sheet } from '@forge/ui';
 import ExerciseMedia from '../../library/components/ExerciseMedia';
 import HowTo from '../../library/components/HowTo';
 import LogTab from '../../logging/LogTab';

@@ -1,13 +1,13 @@
 import { useDeferredValue, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, History, Plus, Search, Star, X } from 'lucide-react';
-import { useDataStore } from '../../datastore/DataStore';
+import { useDataStore } from '@forge/datastore';
+import { useUnits } from '@forge/shared';
+import { Modal } from '@forge/ui';
 import { useExerciseDocs } from '../../library/useExerciseDocs';
 import { useLogs } from '../../logging/useLogs';
-import { useUnits } from '../../shared/UnitsProvider';
 import ExerciseImage from '../../library/components/ExerciseImage';
 import MyCustom from '../../library/components/MyCustom';
-import Modal from '../../ui/Modal';
 import { CUSTOM_FOLDER, EQUIPMENT_GROUPS, FOLDERS, FOLDER_BY_KEY, MECHANIC_LABEL, equipmentGroup, folderKeyOf } from '../../library/data/muscleFolders';
 import { POPULAR_SET } from '../../library/data/popular';
 import { customView, docView as makeDocView, libView } from '../../library/exerciseViews';

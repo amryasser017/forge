@@ -3,16 +3,14 @@ import { Check, Flame, Trophy, X } from 'lucide-react';
 import { useLogs } from '../../logging/useLogs';
 import { useReports } from '../../inbody/useReports';
 import { useWeights } from '../../body/useWeights';
-import { useProfile } from '../../identity/ProfileProvider';
-import { useUnits } from '../../shared/UnitsProvider';
-import PlateBar from '../../ui/PlateBar';
+import { useProfile } from '@forge/identity';
+import { useUnits, DAY_NAMES, byDate, fmtDate, r1 } from '@forge/shared';
+import { PlateBar } from '@forge/ui';
 import TodayCard from './TodayCard';
 import { usePlan } from '../../plan/usePlan';
-import { DAY_NAMES, byDate, fmtDate } from '../../shared/dates';
 import { useAttendance } from '../../attendance/useAttendance';
 import { computePRs } from '../../progress/prs';
 import { progressPct } from '../../body/bodyMath';
-import { r1 } from '../../shared/units';
 
 function message(p) {
   if (p == null) return 'Set your goal and start the climb.';

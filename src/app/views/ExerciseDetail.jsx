@@ -1,21 +1,18 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Archive, ArrowLeft, Pencil, Trash2, Trophy } from 'lucide-react';
-import { useDataStore } from '../../datastore/DataStore';
+import { useDataStore } from '@forge/datastore';
+import { useUnits, byDate, fmtDate, shortDate, todayStr, r1 } from '@forge/shared';
+import { ChartCard, COLORS } from '@forge/ui';
 import { useExerciseDocs } from '../../library/useExerciseDocs';
 import { useLogs } from '../../logging/useLogs';
-import { useUnits } from '../../shared/UnitsProvider';
-import ChartCard from '../../ui/ChartCard';
 import ExerciseMedia from '../../library/components/ExerciseMedia';
 import FavoriteButton from '../../library/components/FavoriteButton';
 import HowTo from '../../library/components/HowTo';
 import AddToPlanButton from '../../plan/components/AddToPlanButton';
 import MuscleChips from '../../library/components/MuscleChips';
 import { datasetIdOf, ensureLibExercise, useExerciseLibrary } from '../../library/exerciseData';
-import { COLORS } from '../../ui/colors';
-import { byDate, fmtDate, shortDate, todayStr } from '../../shared/dates';
 import { computePRs, epley } from '../../progress/prs';
-import { r1 } from '../../shared/units';
 
 export default function ExerciseDetail() {
   const { id } = useParams();

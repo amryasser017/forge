@@ -11,14 +11,14 @@ D.poly([[240, 295], [260, 295]]); D.poly([[240, 665], [260, 665]]);
 D.comp('C12', 'C12 App Shell and Composition Views', 320, 55, 1110, 70, { sub: ['requires: IAuth, IProfile, IUnits, IDates (and every other feature interface, see diagrams 2 and 3)'] });
 
 D.sub('FEAT', 'Features', 300, 190, 640, 270);
-D.comp('C1', 'C1 Identity & Profile', 330, 250, 270, 100, { sub: ['provides: IAuth, IProfile', 'requires: IDataStore, Auth SDK'] });
+D.comp('C1', 'C1 Identity & Profile', 330, 250, 270, 100, { sub: ['provides: IAuth, IProfile', 'requires: IDataStore, Auth SDK', 'npm package @forge/identity'] });
 D.comp('C8', 'C8 Body Tracking', 650, 250, 270, 100, { sub: ['provides: IBodyTracker, IBodyReader', 'requires: IDataStore, IProfile, IUnits'] });
 
 D.sub('KER', 'Shared Kernel', 1100, 190, 330, 270);
-D.comp('C10', 'C10 Units & Dates', 1130, 250, 270, 100, { sub: ['provides: IUnits, IDates', 'requires: nothing'] });
+D.comp('C10', 'C10 Units & Dates', 1130, 250, 270, 100, { sub: ['provides: IUnits, IDates', 'requires: nothing', 'npm package @forge/shared'] });
 
 D.sub('FND', 'Foundation', 300, 540, 640, 210);
-D.comp('C2', 'C2 Data Store', 400, 600, 440, 100, { sub: ['provides: IDataStore', 'requires: Firestore SDK, uid (injected by the shell)'] });
+D.comp('C2', 'C2 Data Store', 400, 600, 440, 100, { sub: ['provides: IDataStore', 'requires: Firestore SDK, uid (injected by the shell)', 'npm package @forge/datastore (also owns the Firebase app)'] });
 
 // assemblies: provider -> consumer
 D.assembly([[260, 295], [330, 300]], 'Auth SDK', { ly: 278 });

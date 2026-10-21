@@ -6,7 +6,7 @@ Personal gym tracking web app for a small group of friends. Each user has a priv
 - React 18 + Vite (plain JS, no TypeScript, plain CSS in `src/styles.css`)
 - Firebase Auth (email/password + Google) and Firestore
 - Recharts for charts, lucide-react for icons
-- Deployed on Vercel (auto-deploys on every push to `main`)
+- Deployed on Vercel (auto-deploys on every push to `main`); npm workspaces (`packages/*`)
 
 ## Commands
 - `npm install`: install dependencies
@@ -51,13 +51,12 @@ Rules: `firestore.rules`. Users can only read and write their own subtree. Rules
 - Signature element: the barbell-style `PlateBar` progress bar.
 - Mobile-first: bottom tab bar under 860px. Keep tap targets at least 44px.
 
-## Project layout (component-based)
-`src/` is organised by component. Each folder owns its files and its Firestore collections; folders talk only through exported functions and hooks. `tests/architecture.test.js` enforces the allowed dependencies (npm test). Full details: `docs/design/01-components.md` and `docs/Forge_Component_Spec.docx`.
-- `src/firebase.js`: Firebase app init (used only by `datastore/` and `identity/`)
-- `src/datastore/` (C2): `DataStoreProvider` (uid injected by the shell), `useDataStore()` (add, put, merge, ensureDoc, upd, del), `useCol(name)`
-- `src/identity/` (C1): `AuthProvider`/`useAuth()` (session, signOut), `ProfileProvider`/`useProfile()` (profile, saveProfile), `Login.jsx`
-- `src/shared/` (C10): `units.js` (kg/lb), `UnitsProvider`/`useUnits()`, `dates.js` (YYYY-MM-DD, Saturday week)
-- `src/ui/` (C11): Sheet, Modal, Stepper, UndoToast, PlateBar, ChartCard, `useFocusTrap`, `colors.js`, `styles.css`
+## Project layout (component-based, npm workspaces)
+Four components are workspace packages in `packages/` (see `packages/README.md`); the other components are folders of the app in `src/`. Each owns its files and its Firestore collections and talks to the others only through exported functions and hooks. `tests/architecture.test.js` enforces the allowed dependencies (`npm test`). Full details: `docs/design/01-components.md` and `docs/Forge_Component_Spec.docx`.
+- `packages/datastore` (`@forge/datastore`, C2): the Firebase app (`auth`, `db`, `googleProvider`), `DataStoreProvider` (uid injected by the shell), `useDataStore()` (add, put, merge, ensureDoc, upd, del), `useCol(name)`
+- `packages/identity` (`@forge/identity`, C1): `AuthProvider`/`useAuth()` (session, signOut), `ProfileProvider`/`useProfile()` (profile, saveProfile), `Login`
+- `packages/shared` (`@forge/shared`, C10): `makeUnits`, `UnitsProvider`/`useUnits()` (kg/lb), dates (YYYY-MM-DD, Saturday week)
+- `packages/ui` (`@forge/ui`, C11): Sheet, Modal, Stepper, UndoToast, PlateBar, ChartCard, `ErrorBoundary`, `useFocusTrap`, `COLORS`, theme `@forge/ui/styles.css`
 - `src/library/` (C3): `data/` (exercise dataset, muscle folders, popular list), search, views, `useExerciseDocs()`, components (images, how-to, favorites, custom exercises and folders)
 - `src/logging/` (C4): `LogTab`, `setDrafts`, `logReader.js` (groupLogs, recentExerciseIds, setsOn), `useLogs()`
 - `src/progress/` (C5): `exerciseStats.js`, `prs.js` (computePRs, epley), ProgressPanel, Glance (pure: logs are passed in)
@@ -65,9 +64,9 @@ Rules: `firestore.rules`. Users can only read and write their own subtree. Rules
 - `src/attendance/` (C7): `attendance.js` (weekly goal, streak, week summary), `useAttendance()`
 - `src/body/` (C8): `BodyPage`, `bodyMath.js` (progressPct), `useWeights()`
 - `src/inbody/` (C9): `InBodyPage`, `inbody.js` (IN_METRICS, compressImage), `useReports()`
-- `src/app/` (C12): `App.jsx` (wires session -> data store -> profile -> units), `Layout.jsx`, `views/` (Dashboard, Lifts, ExerciseDetail, ExerciseSheet, PlanPage, TodayCard, Charts, Settings). Views combine components and hold no business rules.
+- `src/app/` (C12): `App.jsx` (wires session -> data store -> profile -> units), `Layout.jsx`, `views/` (Dashboard, Lifts, ExerciseDetail, ExerciseSheet, PlanPage, TodayCard, Charts, Settings). Views combine components and hold no business rules. Every page is wrapped in an `ErrorBoundary` (`PageError`: Try again / Go to Home, resets when the path changes) and the whole app has an `AppCrash` Reload screen, so one crashing page does not blank the app.
 
-Rules: one owner per collection (read it through the owner's hook, e.g. `useLogs()`, never `useCol('logs')` elsewhere); only `datastore/` and `identity/` import the Firebase SDK; no circular folder dependencies; analytics and the plan page receive logs as arguments.
+Rules: import a package only through its entry point (`@forge/identity`, never deep paths); one owner per collection (read it through the owner's hook, e.g. `useLogs()`, never `useCol('logs')` elsewhere); only `datastore` and `identity` import the Firebase SDK; no circular dependencies; analytics and the plan page receive logs as arguments. The app stays at the repo root so the Vercel settings do not change; `npm install` at the root links the packages.
 
 ## Roadmap
 1. Crew + leaderboard (opt-in sharing, fair % improvement ranking, new shared collection)

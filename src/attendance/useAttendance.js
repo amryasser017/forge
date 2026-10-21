@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { useCol, useDataStore } from '../datastore/DataStore';
-import { useProfile } from '../identity/ProfileProvider';
+import { useCol, useDataStore } from '@forge/datastore';
+import { useProfile } from '@forge/identity';
 import { planGoal } from '../plan/plan';
 import { attendanceSummary, weeklyGoal } from './attendance';
 

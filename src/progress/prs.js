@@ -1,5 +1,5 @@
 // Personal records and estimated 1RM (Progress & Analytics, C5).
-import { byDate } from '../shared/dates';
+import { byDate } from '@forge/shared';
 
 /** Epley estimated one-rep max. */
 export const epley = (w, reps) => (reps > 1 ? w * (1 + reps / 30) : w);

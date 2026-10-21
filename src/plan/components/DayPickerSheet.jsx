@@ -1,4 +1,4 @@
-import Sheet from '../../ui/Sheet';
+import { Sheet } from '@forge/ui';
 import { DAYS } from '../plan';
 
 const VERB = { swap: 'Swap', move: 'Move', copy: 'Copy' };

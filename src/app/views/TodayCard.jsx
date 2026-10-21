@@ -6,7 +6,8 @@ import { useLogs } from '../../logging/useLogs';
 import ExerciseImage from '../../library/components/ExerciseImage';
 import { useExerciseSheet } from './useExerciseSheet';
 import Glance from '../../progress/Glance';
-import Sheet from '../../ui/Sheet';
+import { Sheet } from '@forge/ui';
+import { todayStr } from '@forge/shared';
 import { FOLDER_BY_KEY } from '../../library/data/muscleFolders';
 import { libDocId, useExerciseLibrary } from '../../library/exerciseData';
 import { searchIndex } from '../../library/exerciseSearch';
@@ -14,7 +15,6 @@ import { groupLogs, recentExerciseIds } from '../../logging/logReader';
 import { dayKeyOf, planHasItems } from '../../plan/plan';
 import { usePlan } from '../../plan/usePlan';
 import { setsOn } from '../../logging/logReader';
-import { todayStr } from '../../shared/dates';
 
 function Thumb({ lib, doc }) {
   return lib ? <ExerciseImage ex={lib} className="ex-thumb sm" /> : <span className="ex-img ex-thumb sm ex-img-empty" aria-hidden>{FOLDER_BY_KEY[doc?.folderKey]?.emoji ?? '🛠️'}</span>;

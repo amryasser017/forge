@@ -18,9 +18,9 @@ D.comp('C9', 'C9 InBody Reports', 1170, 262, 240, 150, { sub: ['provides: IInBod
 
 // ports on the bottom boundary
 D.port('pProf', 300, 590); D.port('pUn', 1100, 590); D.port('pData', 1400, 590);
-D.comp('C1', 'C1 Identity & Profile', 215, 660, 190, 70, { sub: ['provides: IProfile'] });
-D.comp('C10', 'C10 Units & Dates', 1005, 660, 190, 70, { sub: ['provides: IUnits, IDates'] });
-D.comp('C2', 'C2 Data Store', 1305, 660, 190, 70, { sub: ['provides: IDataStore'] });
+D.comp('C1', 'C1 Identity & Profile', 215, 660, 190, 70, { sub: ['provides: IProfile', 'npm package'] });
+D.comp('C10', 'C10 Units & Dates', 1005, 660, 190, 70, { sub: ['provides: IUnits, IDates', 'npm package'] });
+D.comp('C2', 'C2 Data Store', 1305, 660, 190, 70, { sub: ['provides: IDataStore', 'npm package'] });
 
 // left providers -> C6
 D.assembly([[170, 285], [300, 285]], 'IExerciseCatalog', { lx: 235, ly: 268 });

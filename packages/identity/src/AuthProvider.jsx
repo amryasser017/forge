@@ -1,7 +1,7 @@
 // Identity (C1), part 1: the Firebase session. user is undefined while loading, null when signed out.
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { onAuthStateChanged, signOut as fbSignOut } from 'firebase/auth';
-import { auth } from '../firebase';
+import { auth } from '@forge/datastore';
 
 const Ctx = createContext(null);
 

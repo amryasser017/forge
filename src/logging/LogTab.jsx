@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { Timer, Trophy } from 'lucide-react';
-import { useCol, useDataStore } from '../datastore/DataStore';
-import { useUnits } from '../shared/UnitsProvider';
-import Stepper from '../ui/Stepper';
+import { useCol, useDataStore } from '@forge/datastore';
+import { useUnits, todayStr } from '@forge/shared';
+import { Stepper } from '@forge/ui';
 import { ensureLibExercise } from '../library/exerciseData';
 import { bestWeight, lastLog } from '../progress/exerciseStats';
 import { setsOn } from './logReader';
 import { getDraft, setDraft } from './setDrafts';
-import { todayStr } from '../shared/dates';
 
 const REST_SECONDS = 90;
 

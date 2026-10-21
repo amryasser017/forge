@@ -27,8 +27,8 @@ Dependency direction: C12 -> C3..C9 -> C2 / C10 / C11. No cycles: C5 receives lo
 ## Where each component lives in the code (done)
 | Component | Folder | Main files |
 |---|---|---|
-| C1 Identity & Profile | `src/identity/` | AuthProvider.jsx, ProfileProvider.jsx, Login.jsx (+ `src/firebase.js` SDK init) |
-| C2 Data Store | `src/datastore/` | DataStore.jsx (makeDataStore, DataStoreProvider, useDataStore, useCol) |
+| C1 Identity & Profile | `packages/identity/` (`@forge/identity`) | AuthProvider.jsx, ProfileProvider.jsx, Login.jsx |
+| C2 Data Store | `packages/datastore/` (`@forge/datastore`) | DataStore.jsx (makeDataStore, DataStoreProvider, useDataStore, useCol), firebase.js (app init) |
 | C3 Exercise Library | `src/library/` | data/, exerciseData.js, exerciseSearch.js, exerciseSummary.js, exerciseViews.js, useExerciseDocs.js, components/ |
 | C4 Workout Logging | `src/logging/` | LogTab.jsx, setDrafts.js, logReader.js, useLogs.js |
 | C5 Progress & Analytics | `src/progress/` | exerciseStats.js, prs.js, ProgressPanel.jsx, Glance.jsx |
@@ -36,11 +36,11 @@ Dependency direction: C12 -> C3..C9 -> C2 / C10 / C11. No cycles: C5 receives lo
 | C7 Attendance & Goals | `src/attendance/` | attendance.js, useAttendance.js |
 | C8 Body Tracking | `src/body/` | BodyPage.jsx, bodyMath.js, useWeights.js |
 | C9 InBody Reports | `src/inbody/` | InBodyPage.jsx, inbody.js, useReports.js |
-| C10 Units & Dates | `src/shared/` | units.js, UnitsProvider.jsx, dates.js |
-| C11 UI Kit | `src/ui/` | Sheet, Modal, Stepper, UndoToast, PlateBar, ChartCard, useFocusTrap, colors.js, styles.css |
+| C10 Units & Dates | `packages/shared/` (`@forge/shared`) | units.js, UnitsProvider.jsx, dates.js |
+| C11 UI Kit | `packages/ui/` (`@forge/ui`) | Sheet, Modal, Stepper, UndoToast, PlateBar, ChartCard, useFocusTrap, colors.js, styles.css |
 | C12 App Shell & Composition Views | `src/app/` | App.jsx, Layout.jsx, views/ (Dashboard, Lifts, ExerciseDetail, ExerciseSheet, PlanPage, TodayCard, Charts, Settings) |
 
-`tests/architecture.test.js` checks these rules on every `npm test`: components only import the components they are allowed to use, only `datastore/` and `identity/` import the Firebase SDK, and the component graph has no cycles.
+C1, C2, C10 and C11 are npm workspace packages (`packages/*`, see `packages/README.md`); the other components are folders of the app in `src/`. `tests/architecture.test.js` checks these rules on every `npm test`: components only import the components they are allowed to use (packages declare theirs in `package.json`), packages are imported only through their entry point, only the `datastore` and `identity` packages import the Firebase SDK, and the component graph has no cycles.
 
 ## What was split (the mixed files found earlier)
 1. `AppContext.jsx` -> `datastore/` (data helpers, `useCol`), `identity/` (session, profile), `shared/UnitsProvider` (units).

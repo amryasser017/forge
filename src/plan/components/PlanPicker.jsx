@@ -1,8 +1,7 @@
 import { useDeferredValue, useMemo, useState } from 'react';
 import { Check, Plus, Search, X } from 'lucide-react';
 import ExerciseImage from '../../library/components/ExerciseImage';
-import Sheet from '../../ui/Sheet';
-import Stepper from '../../ui/Stepper';
+import { Sheet, Stepper } from '@forge/ui';
 import { FOLDERS, FOLDER_BY_KEY, MECHANIC_LABEL } from '../../library/data/muscleFolders';
 import { useExerciseLibrary } from '../../library/exerciseData';
 import { folderItems, searchIndex } from '../../library/exerciseSearch';
