@@ -24,32 +24,29 @@ Rules: (R1) one responsibility per component, (R2) one owner per collection, oth
 
 Dependency direction: C12 -> C3..C9 -> C2 / C10 / C11. No cycles: C5 receives logs as arguments (it does not call C4), C4 uses C5 and C3, C6 uses C3 and C5, C2 receives the uid from the shell (no dependency on C1). See docs/Forge_Component_Spec.docx for the full provided/required lists.
 
-## File ownership (current file -> component)
-
-| File | Component | Note |
+## Where each component lives in the code (done)
+| Component | Folder | Main files |
 |---|---|---|
-| `firebase.js` | C2 | auth export also used by C1 (split: `db` -> C2, `auth` -> C1) |
-| `AppContext.jsx` | MIXED | auth+profile -> C1; add/put/merge/ensureDoc/upd/del/useCol -> C2; show/toKg -> C10 |
-| `pages/Login.jsx`, `pages/Settings.jsx` (profile fields) | C1 | Settings is a Composition View (C12) that calls IProfile and IAttendance |
-| `data/exercises.json`, `data/muscleFolders.js`, `data/popular.js`, `data/videos.json`, `lib/exerciseSearch.js`, `lib/exerciseData.js`, `lib/exerciseSummary.js` | C3 | |
-| `lib/exerciseViews.js` | MIXED | libView/customView/docView -> C3; recentExerciseIds, groupLogs -> C4 |
-| `pages/Exercises.jsx`, `exercise/{ExerciseImage,ExerciseMedia,MuscleChips,HowTo,FavoriteButton,MyCustom}.jsx` | C3 | MyCustom = custom exercises + user folders (two sub-modules of C3) |
-| `exercise/LogTab.jsx`, `lib/setDrafts.js` | C4 | the "Add to today's plan" button inside LogTab moves to C6 (`AddToPlanButton`) |
-| `lib/exerciseStats.js`, `exercise/{ProgressPanel,Glance}.jsx`, `computePRs`/`epley` from utils | C5 | |
-| `pages/Charts.jsx` | C12 | Composition View over C5 data |
-| `lib/plan.js`, `data/planTemplates.js`, `lib/usePlan.js`, `lib/usePlanActions.js`, `components/plan/*`, `pages/Plan.jsx` | C6 | `usePlan` contains the legacy migration (sub-module) |
-| `weekStart`, `weekStreak`, `WEEK_GOAL`, checkin logic in Dashboard | C7 | week math primitives (`weekStart`) live in C10, streak/goal in C7 |
-| `pages/Body.jsx`, `progressPct` | C8 | |
-| `pages/InBody.jsx`, `compressImage`, `IN_METRICS` | C9 | |
-| `utils.js` | MIXED | split: KG_PER_LB/r1/ymd/todayStr/fmtDate/shortDate/DAY_NAMES/WEEK_ORDER/byDate/weekStart -> C10; computePRs/epley -> C5; weekStreak/WEEK_GOAL -> C7; progressPct -> C8; compressImage/IN_METRICS -> C9; COLORS -> C11 |
-| `components/{Sheet,Modal,Stepper,PlateBar,ChartCard}.jsx`, `plan/UndoToast.jsx`, `lib/useFocusTrap.js`, `styles.css` | C11 | UndoToast and PlateBar are generic visuals |
-| `App.jsx`, `main.jsx`, `components/Layout.jsx`, `pages/Dashboard.jsx`, `pages/ExerciseDetail.jsx`, `exercise/{ExerciseSheet,useExerciseSheet}.jsx`, `plan/TodayCard.jsx` | C12 | Composition Views: only wire components, no rules |
+| C1 Identity & Profile | `src/identity/` | AuthProvider.jsx, ProfileProvider.jsx, Login.jsx (+ `src/firebase.js` SDK init) |
+| C2 Data Store | `src/datastore/` | DataStore.jsx (makeDataStore, DataStoreProvider, useDataStore, useCol) |
+| C3 Exercise Library | `src/library/` | data/, exerciseData.js, exerciseSearch.js, exerciseSummary.js, exerciseViews.js, useExerciseDocs.js, components/ |
+| C4 Workout Logging | `src/logging/` | LogTab.jsx, setDrafts.js, logReader.js, useLogs.js |
+| C5 Progress & Analytics | `src/progress/` | exerciseStats.js, prs.js, ProgressPanel.jsx, Glance.jsx |
+| C6 Weekly Plan | `src/plan/` | plan.js, planTemplates.js, usePlan.js, usePlanActions.js, components/ |
+| C7 Attendance & Goals | `src/attendance/` | attendance.js, useAttendance.js |
+| C8 Body Tracking | `src/body/` | BodyPage.jsx, bodyMath.js, useWeights.js |
+| C9 InBody Reports | `src/inbody/` | InBodyPage.jsx, inbody.js, useReports.js |
+| C10 Units & Dates | `src/shared/` | units.js, UnitsProvider.jsx, dates.js |
+| C11 UI Kit | `src/ui/` | Sheet, Modal, Stepper, UndoToast, PlateBar, ChartCard, useFocusTrap, colors.js, styles.css |
+| C12 App Shell & Composition Views | `src/app/` | App.jsx, Layout.jsx, views/ (Dashboard, Lifts, ExerciseDetail, ExerciseSheet, PlanPage, TodayCard, Charts, Settings) |
 
-## Mixed-responsibility spots found (and how the design fixes them)
-1. `AppContext.jsx` mixed auth, profile, units and data access -> C1, C2, C10.
-2. `utils.js` mixed six unrelated concerns -> split across C5, C7, C8, C9, C10, C11.
-3. `exerciseViews.js` mixed catalog views with log helpers -> C3 / C4.
-4. `ExerciseDetail.jsx`, `Dashboard.jsx`, `Settings.jsx`, `Charts.jsx`, `ExerciseSheet.jsx`, `TodayCard.jsx` each combine several components -> declared Composition Views (C12) that only call interfaces.
-5. `LogTab.jsx` edited the plan directly -> goes through IPlan (C6).
-6. `MyCustom.jsx` holds custom exercises and user folders -> two sub-modules of C3.
-7. Weekly goal was split across profile (`weeklyGoal`), plan (`planGoal`) and utils (`WEEK_GOAL`) -> owned by C7, which reads IPlan and IProfile.
+`tests/architecture.test.js` checks these rules on every `npm test`: components only import the components they are allowed to use, only `datastore/` and `identity/` import the Firebase SDK, and the component graph has no cycles.
+
+## What was split (the mixed files found earlier)
+1. `AppContext.jsx` -> `datastore/` (data helpers, `useCol`), `identity/` (session, profile), `shared/UnitsProvider` (units).
+2. `utils.js` -> `shared/` (units, dates), `progress/prs.js`, `attendance/attendance.js`, `body/bodyMath.js`, `inbody/inbody.js`, `ui/colors.js`.
+3. `exerciseViews.js` -> `library/exerciseViews.js` (views) and `logging/logReader.js` (groupLogs, recentExerciseIds, setsOn).
+4. Pages that combine components are now Composition Views in `app/views/`.
+5. `LogTab` no longer edits the plan: the shell passes `AddToTodayButton` (plan) into it as a slot.
+6. The library and plan components no longer read logs: the Lifts and Plan views pass them in.
+7. The weekly goal and week summary moved into `attendance/` (`useAttendance`).

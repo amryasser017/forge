@@ -10,7 +10,7 @@ import DayPickerSheet from '../../plan/components/DayPickerSheet';
 import ShiftWeekSheet from '../../plan/components/ShiftWeekSheet';
 import UndoToast from '../../ui/UndoToast';
 import { useExerciseLibrary } from '../../library/exerciseData';
-import { groupLogs } from '../../logging/logReader';
+import { groupLogs, recentExerciseIds } from '../../logging/logReader';
 import { DAYS, clearDay, copyDay, dayKeyOf, moveDay, planGoal, shiftWeek, swapDays } from '../../plan/plan';
 import { usePlan } from '../../plan/usePlan';
 import { usePlanActions } from '../../plan/usePlanActions';
@@ -110,7 +110,7 @@ export default function Plan() {
       {shifting && <ShiftWeekSheet plan={plan} onClose={() => setShifting(false)} onApply={(n) => { setShifting(false); change(shiftWeek(plan, n), `Shifted the week ${n > 0 ? n + ' later' : -n + ' earlier'}`); }} />}
       {picking && <DayPickerSheet kind={picking.kind} from={picking.from} plan={plan} onPick={pickDay} onClose={() => setPicking(null)} />}
       <UndoToast toast={toast} onDismiss={() => setToast(null)} />
-      {adding && <PlanPicker info={DAYS.find((d) => d.key === adding)} day={plan[adding]} docs={docs} logs={logs} onAdd={(v, s, r) => addExercise(adding, v, s, r)} onClose={() => setAdding(null)} />}
+      {adding && <PlanPicker info={DAYS.find((d) => d.key === adding)} day={plan[adding]} docs={docs} recentIds={recentExerciseIds(logs, 6)} onAdd={(v, s, r) => addExercise(adding, v, s, r)} onClose={() => setAdding(null)} />}
       {templates && <TemplatesModal plan={plan} libData={data} onApply={applyTemplate} onClose={() => setTemplates(false)} />}
     </div>
   );

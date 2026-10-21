@@ -7,7 +7,6 @@ import { FOLDERS, FOLDER_BY_KEY, MECHANIC_LABEL } from '../../library/data/muscl
 import { useExerciseLibrary } from '../../library/exerciseData';
 import { folderItems, searchIndex } from '../../library/exerciseSearch';
 import { customView, docView, libView } from '../../library/exerciseViews';
-import { recentExerciseIds } from '../../logging/logReader';
 import { DEFAULT_REPS, DEFAULT_SETS, hasItem } from '../plan';
 
 const PAGE = 30;
@@ -49,8 +48,8 @@ function PickRow({ v, added, open, onToggle, onAdd, dayName }) {
 }
 
 /** Full-height sheet to add exercises to one plan day. Favorites, Recent, focus suggestions, browse by muscle, search. */
-/** `docs` = the athlete's exercise documents and `logs` = their logs, both passed in by the Plan page (used for favorites and recents). */
-export default function PlanPicker({ info, day, docs, logs, onAdd, onClose }) {
+/** `docs` = the athlete's exercise documents and `recentIds` = ids of recently logged exercises, both passed in by the Plan page. */
+export default function PlanPicker({ info, day, docs, recentIds, onAdd, onClose }) {
   const { index, byId } = useExerciseLibrary();
   const [q, setQ] = useState('');
   const dq = useDeferredValue(q.trim());
@@ -62,7 +61,7 @@ export default function PlanPicker({ info, day, docs, logs, onAdd, onClose }) {
   const activeDocs = useMemo(() => docs.filter((d) => !d.archived), [docs]);
   const docByLibId = useMemo(() => Object.fromEntries(docs.filter((d) => d.libId).map((d) => [d.libId, d])), [docs]);
   const favorites = useMemo(() => activeDocs.filter((d) => d.favorite).map((d) => docView(d, byId)), [activeDocs, byId]);
-  const recents = useMemo(() => recentExerciseIds(logs, 6).map((id) => activeDocs.find((d) => d.id === id)).filter(Boolean).map((d) => docView(d, byId)), [logs, activeDocs, byId]);
+  const recents = useMemo(() => recentIds.map((id) => activeDocs.find((d) => d.id === id)).filter(Boolean).map((d) => docView(d, byId)), [recentIds, activeDocs, byId]);
   const suggestions = useMemo(() => {
     if (!index) return [];
     const seen = new Set();
