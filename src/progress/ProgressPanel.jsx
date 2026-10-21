@@ -1,8 +1,10 @@
 import { ArrowDown, ArrowRight, ArrowUp, Trophy } from 'lucide-react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { useApp } from '../AppContext';
+import { useUnits } from '../shared/UnitsProvider';
 import { bestWeight, lastSets, sessionsOf, trendOf } from './exerciseStats';
-import { COLORS, computePRs, fmtDate, shortDate } from '../utils';
+import { COLORS } from '../ui/colors';
+import { computePRs } from './prs';
+import { fmtDate, shortDate } from '../shared/dates';
 
 export function TrendArrow({ trend }) {
   if (!trend) return null;
@@ -14,7 +16,7 @@ export function TrendArrow({ trend }) {
 
 /** Best weight, a compact chart of the last ~8 sessions, PR badges and the last 5 sets. `logs` = this exercise only. */
 export default function ProgressPanel({ logs }) {
-  const { show, unit } = useApp();
+  const { show, unit } = useUnits();
   if (logs.length === 0) return <div className="empty">No sets yet. Your first one sets the baseline.</div>;
   const prIds = computePRs(logs);
   const sessions = sessionsOf(logs).slice(-8);

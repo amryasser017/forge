@@ -1,11 +1,18 @@
 import { Link } from 'react-router-dom';
 import { Check, Flame, Trophy, X } from 'lucide-react';
-import { useApp, useCol } from '../../AppContext';
+import { useLogs } from '../../logging/useLogs';
+import { useReports } from '../../inbody/useReports';
+import { useWeights } from '../../body/useWeights';
+import { useProfile } from '../../identity/ProfileProvider';
+import { useUnits } from '../../shared/UnitsProvider';
 import PlateBar from '../../ui/PlateBar';
 import TodayCard from './TodayCard';
-import { planGoal } from '../../plan/plan';
 import { usePlan } from '../../plan/usePlan';
-import { DAY_NAMES, WEEK_GOAL, byDate, computePRs, fmtDate, progressPct, r1, todayStr, weekStart, weekStreak, ymd } from '../../utils';
+import { DAY_NAMES, byDate, fmtDate } from '../../shared/dates';
+import { useAttendance } from '../../attendance/useAttendance';
+import { computePRs } from '../../progress/prs';
+import { progressPct } from '../../body/bodyMath';
+import { r1 } from '../../shared/units';
 
 function message(p) {
   if (p == null) return 'Set your goal and start the climb.';
@@ -18,14 +25,14 @@ function message(p) {
 }
 
 export default function Dashboard() {
-  const { profile, show, unit, put, del } = useApp();
-  const weights = useCol('weights').items;
-  const logs = useCol('logs').items;
-  const inbody = useCol('inbody').items;
-  const checkins = useCol('checkins').items;
+  const { profile } = useProfile();
+  const { show, unit } = useUnits();
+  const weights = useWeights().items;
+  const logs = useLogs().items;
+  const inbody = useReports().items;
   const { plan } = usePlan();
   // Weekly target = training days in the plan; falls back to the Settings goal when there is no plan yet.
-  const goal = planGoal(plan) || (profile.weeklyGoal ?? WEEK_GOAL);
+  const { goal, weekDays, trained, daysThisWeek, streak, toggleDay, dayState } = useAttendance({ plan, logs });
 
   const sortedW = [...weights].sort(byDate);
   const current = sortedW.length ? sortedW[sortedW.length - 1].value : profile.startWeight;
@@ -33,21 +40,6 @@ export default function Dashboard() {
   const hasGoal = profile.startWeight != null && profile.targetWeight != null;
   const toGo = hasGoal && current != null ? Math.abs(current - profile.targetWeight) : null;
   const losing = hasGoal && profile.startWeight > profile.targetWeight;
-
-  const dates = logs.map((l) => l.date);
-  const thisWeek = weekStart(todayStr());
-  const weekDays = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(thisWeek + 'T00:00:00');
-    d.setDate(d.getDate() + i);
-    return ymd(d);
-  });
-  const logged = new Set(dates);
-  const checked = new Set(checkins.map((c) => c.id));
-  const trained = new Set([...logged, ...checked]);
-  const daysThisWeek = weekDays.filter((d) => trained.has(d)).length;
-  const streak = weekStreak([...trained], goal);
-  const today = todayStr();
-  const toggleDay = (d) => (checked.has(d) ? del('checkins', d) : put('checkins', d, { date: d }));
 
   const prIds = computePRs(logs);
   const recentPRs = logs.filter((l) => prIds.has(l.id)).sort(byDate).reverse().slice(0, 5);
@@ -118,22 +110,20 @@ export default function Dashboard() {
         </header>
         <div className="week">
           {weekDays.map((d, i) => {
-            const done = trained.has(d);
-            const locked = logged.has(d) && !checked.has(d);
-            const missed = !done && d < today;
-            const state = done ? 'done' : missed ? 'missed' : d === today ? 'today' : 'future';
+            const { state, done, locked, disabled } = dayState(d);
+            const missed = state === 'missed';
             return (
               <button
                 key={d}
                 type="button"
                 className={'day ' + state}
-                disabled={locked || d > today}
+                disabled={disabled}
                 onClick={() => toggleDay(d)}
                 title={locked ? 'Done (you logged a lift)' : done ? 'Tap to undo' : 'Tap to mark done'}
               >
                 <small>{DAY_NAMES[new Date(d + 'T00:00:00').getDay()].slice(0, 3)}</small>
                 <span className="day-ic">{done ? <Check size={20} /> : missed ? <X size={18} /> : <i />}</span>
-                <em>{done ? 'Done' : missed ? 'Missed' : d === today ? 'Today' : ''}</em>
+                <em>{done ? 'Done' : missed ? 'Missed' : state === 'today' ? 'Today' : ''}</em>
               </button>
             );
           })}

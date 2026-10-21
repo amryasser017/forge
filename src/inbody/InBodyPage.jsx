@@ -1,15 +1,21 @@
 import { useMemo, useState } from 'react';
 import { ArrowDown, ArrowUp, Camera, Plus, Trash2 } from 'lucide-react';
-import { useApp, useCol } from '../AppContext';
+import { useDataStore } from '../datastore/DataStore';
+import { useReports } from './useReports';
+import { useUnits } from '../shared/UnitsProvider';
 import ChartCard from '../ui/ChartCard';
 import Modal from '../ui/Modal';
-import { COLORS, IN_METRICS, byDate, compressImage, fmtDate, r1, shortDate, todayStr } from '../utils';
+import { COLORS } from '../ui/colors';
+import { IN_METRICS, compressImage } from './inbody';
+import { byDate, fmtDate, shortDate, todayStr } from '../shared/dates';
+import { r1 } from '../shared/units';
 
 const EMPTY = { date: todayStr(), weight: '', muscle: '', fatMass: '', fatPct: '', visceral: '', bmr: '', note: '' };
 
 export default function InBody() {
-  const { add, del, show, toKg, unit } = useApp();
-  const { items } = useCol('inbody');
+  const { add, del } = useDataStore();
+  const { show, toKg, unit } = useUnits();
+  const { items } = useReports();
   const reports = useMemo(() => [...items].sort(byDate), [items]);
 
   const [open, setOpen] = useState(false);

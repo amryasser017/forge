@@ -1,13 +1,13 @@
 import { useDeferredValue, useMemo, useState } from 'react';
 import { Check, Plus, Search, X } from 'lucide-react';
-import { useApp, useCol } from '../../AppContext';
 import ExerciseImage from '../../library/components/ExerciseImage';
 import Sheet from '../../ui/Sheet';
 import Stepper from '../../ui/Stepper';
 import { FOLDERS, FOLDER_BY_KEY, MECHANIC_LABEL } from '../../library/data/muscleFolders';
 import { useExerciseLibrary } from '../../library/exerciseData';
 import { folderItems, searchIndex } from '../../library/exerciseSearch';
-import { customView, docView, libView, recentExerciseIds } from '../../library/exerciseViews';
+import { customView, docView, libView } from '../../library/exerciseViews';
+import { recentExerciseIds } from '../../logging/logReader';
 import { DEFAULT_REPS, DEFAULT_SETS, hasItem } from '../plan';
 
 const PAGE = 30;
@@ -49,9 +49,8 @@ function PickRow({ v, added, open, onToggle, onAdd, dayName }) {
 }
 
 /** Full-height sheet to add exercises to one plan day. Favorites, Recent, focus suggestions, browse by muscle, search. */
-export default function PlanPicker({ info, day, onAdd, onClose }) {
-  const docs = useCol('exercises').items;
-  const logs = useCol('logs').items;
+/** `docs` = the athlete's exercise documents and `logs` = their logs, both passed in by the Plan page (used for favorites and recents). */
+export default function PlanPicker({ info, day, docs, logs, onAdd, onClose }) {
   const { index, byId } = useExerciseLibrary();
   const [q, setQ] = useState('');
   const dq = useDeferredValue(q.trim());

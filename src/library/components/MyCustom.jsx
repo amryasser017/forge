@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, FolderPlus, Pencil, Plus, Trash2, Trophy, X } from 'lucide-react';
-import { useApp, useCol } from '../../AppContext';
+import { useCol, useDataStore } from '../../datastore/DataStore';
+import { useExerciseDocs } from '../useExerciseDocs';
+import { useUnits } from '../../shared/UnitsProvider';
 import Modal from '../../ui/Modal';
-import { byDate, fmtDate } from '../../utils';
+import { byDate, fmtDate } from '../../shared/dates';
 
 const seconds = (x) => x.createdAt?.seconds ?? 9e12;
 
 function LiftCard({ x, logs, onRemove }) {
-  const { show, unit } = useApp();
+  const { show, unit } = useUnits();
   const l = logs.filter((g) => g.exerciseId === x.id).sort(byDate);
   const lastLog = l[l.length - 1];
   const best = l.reduce((m, g) => Math.max(m, g.weight), 0);
@@ -33,7 +35,7 @@ function LiftCard({ x, logs, onRemove }) {
 
 /** Add exercises to a folder: pick from the exercises already in the database, or create a new one. */
 function AddExerciseModal({ folder, allExercises, onClose }) {
-  const { add, upd } = useApp();
+  const { add, upd } = useDataStore();
   const inFolder = new Set(folder.exerciseIds || []);
   const choices = allExercises.filter((x) => !x.archived && !inFolder.has(x.id)).sort((a, b) => a.name.localeCompare(b.name));
   const [tab, setTab] = useState(choices.length ? 'pick' : 'new');
@@ -111,7 +113,7 @@ function AddExerciseModal({ folder, allExercises, onClose }) {
 }
 
 function FolderNameModal({ folder, onClose }) {
-  const { upd } = useApp();
+  const { upd } = useDataStore();
   const [name, setName] = useState(folder.name);
   async function save(e) {
     e.preventDefault();
@@ -131,11 +133,11 @@ function FolderNameModal({ folder, onClose }) {
 }
 
 /** "My custom": exercises you created yourself, archived exercises and your own folders. */
-export default function MyCustom() {
-  const { add, upd, del } = useApp();
-  const ex = useCol('exercises').items;
+/** `logs` = the athlete's logs (passed in by the Lifts view; the library does not read logs itself). */
+export default function MyCustom({ logs }) {
+  const { add, upd, del } = useDataStore();
+  const ex = useExerciseDocs().items;
   const folders = [...useCol('folders').items].sort((a, b) => seconds(a) - seconds(b));
-  const logs = useCol('logs').items;
   const [name, setName] = useState('');
   const [showArchived, setShowArchived] = useState(false);
   const [open, setOpen] = useState(() => new Set()); // expanded folder ids; folders start collapsed

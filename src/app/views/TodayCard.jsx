@@ -1,7 +1,8 @@
 import { useDeferredValue, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
-import { useCol } from '../../AppContext';
+import { useExerciseDocs } from '../../library/useExerciseDocs';
+import { useLogs } from '../../logging/useLogs';
 import ExerciseImage from '../../library/components/ExerciseImage';
 import { useExerciseSheet } from './useExerciseSheet';
 import Glance from '../../progress/Glance';
@@ -9,11 +10,11 @@ import Sheet from '../../ui/Sheet';
 import { FOLDER_BY_KEY } from '../../library/data/muscleFolders';
 import { libDocId, useExerciseLibrary } from '../../library/exerciseData';
 import { searchIndex } from '../../library/exerciseSearch';
-import { groupLogs, recentExerciseIds } from '../../library/exerciseViews';
+import { groupLogs, recentExerciseIds } from '../../logging/logReader';
 import { dayKeyOf, planHasItems } from '../../plan/plan';
 import { usePlan } from '../../plan/usePlan';
-import { setsOn } from '../../progress/exerciseStats';
-import { todayStr } from '../../utils';
+import { setsOn } from '../../logging/logReader';
+import { todayStr } from '../../shared/dates';
 
 function Thumb({ lib, doc }) {
   return lib ? <ExerciseImage ex={lib} className="ex-thumb sm" /> : <span className="ex-img ex-thumb sm ex-img-empty" aria-hidden>{FOLDER_BY_KEY[doc?.folderKey]?.emoji ?? '🛠️'}</span>;
@@ -47,8 +48,8 @@ function AnyExercisePicker({ docs, byId, index, logs, onPick, onClose }) {
 /** Home: today's planned exercises, opening the exercise sheet on the Log tab. */
 export default function TodayCard() {
   const { plan } = usePlan();
-  const docs = useCol('exercises').items;
-  const logs = useCol('logs').items;
+  const docs = useExerciseDocs().items;
+  const logs = useLogs().items;
   const { byId, index } = useExerciseLibrary();
   const { open, sheet } = useExerciseSheet();
   const [other, setOther] = useState(false);

@@ -1,14 +1,22 @@
 import { useMemo, useState } from 'react';
-import { useApp, useCol } from '../../AppContext';
+import { useExerciseDocs } from '../../library/useExerciseDocs';
+import { useLogs } from '../../logging/useLogs';
+import { useReports } from '../../inbody/useReports';
+import { useWeights } from '../../body/useWeights';
+import { useUnits } from '../../shared/UnitsProvider';
 import ChartCard from '../../ui/ChartCard';
-import { COLORS, IN_METRICS, byDate, epley, r1, shortDate, weekStart } from '../../utils';
+import { COLORS } from '../../ui/colors';
+import { IN_METRICS } from '../../inbody/inbody';
+import { byDate, shortDate, weekStart } from '../../shared/dates';
+import { epley } from '../../progress/prs';
+import { r1 } from '../../shared/units';
 
 export default function Charts() {
-  const { show, unit } = useApp();
-  const weights = useCol('weights').items;
-  const logs = useCol('logs').items;
-  const exercises = useCol('exercises').items;
-  const inbody = useCol('inbody').items;
+  const { show, unit } = useUnits();
+  const weights = useWeights().items;
+  const logs = useLogs().items;
+  const exercises = useExerciseDocs().items;
+  const inbody = useReports().items;
   const [metric, setMetric] = useState('weight');
 
   const options = [

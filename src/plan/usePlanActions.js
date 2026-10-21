@@ -1,14 +1,15 @@
 import { useMemo, useRef } from 'react';
-import { useApp, useCol } from '../AppContext';
+import { useDataStore } from '../datastore/DataStore';
+import { useExerciseDocs } from '../library/useExerciseDocs';
 import { DAY_KEYS, addItem, dayChanged, emptyDay } from './plan';
 import { ensureLibExercise, libDocId } from '../library/exerciseData';
 import { usePlan } from './usePlan';
 
 /** Plan editing helpers. Reads the latest plan from a ref so quick successive edits don't overwrite each other. */
 export function usePlanActions() {
-  const app = useApp();
+  const store = useDataStore();
   const { plan } = usePlan();
-  const docs = useCol('exercises').items;
+  const docs = useExerciseDocs().items;
   const planRef = useRef(plan);
   planRef.current = plan;
   const docsRef = useRef(docs);
@@ -17,7 +18,7 @@ export function usePlanActions() {
   return useMemo(() => {
     const save = async (key, day) => {
       planRef.current = { ...planRef.current, [key]: day };
-      await app.merge('plan', key, day);
+      await store.merge('plan', key, day);
     };
     return {
       plan,
@@ -29,7 +30,7 @@ export function usePlanActions() {
         if (changed.length === 0) return;
         planRef.current = { ...before, ...Object.fromEntries(changed.map((k) => [k, next[k]])) };
         try {
-          await Promise.all(changed.map((k) => app.merge('plan', k, next[k])));
+          await Promise.all(changed.map((k) => store.merge('plan', k, next[k])));
         } catch (e) {
           planRef.current = before;
           throw e;
@@ -39,7 +40,7 @@ export function usePlanActions() {
       update: (key, fn) => save(key, fn(planRef.current[key])),
       /** v = a view from exerciseViews (library or custom). Library docs are created on first use. */
       async addExercise(key, v, sets, reps) {
-        if (v.lib && !docsRef.current.some((d) => d.id === v.docId)) await ensureLibExercise(app, v.lib);
+        if (v.lib && !docsRef.current.some((d) => d.id === v.docId)) await ensureLibExercise(store, v.lib);
         await save(key, addItem(planRef.current[key], v.docId, sets, reps));
       },
       /** Replace the whole week with a template. libData = the dataset array. */
@@ -56,9 +57,9 @@ export function usePlanActions() {
           });
           return { label: d.label, rest: false, focus: d.focus, items };
         });
-        await Promise.all([...libs.values()].map((ex) => (docsRef.current.some((d) => d.id === libDocId(ex.id)) ? null : ensureLibExercise(app, ex))));
+        await Promise.all([...libs.values()].map((ex) => (docsRef.current.some((d) => d.id === libDocId(ex.id)) ? null : ensureLibExercise(store, ex))));
         await Promise.all(DAY_KEYS.map((k, i) => save(k, days[i])));
       },
     };
-  }, [app, plan]);
+  }, [store, plan]);
 }

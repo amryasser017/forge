@@ -33,6 +33,3 @@ export function trendOf(logs) {
   const change = (latest - avg) / avg;
   return change > 0.02 ? 'up' : change < -0.02 ? 'down' : 'flat';
 }
-
-/** Sets logged today for the sets-done counter (a log can hold several sets via its `sets` field). */
-export const setsOn = (logs, date) => logs.filter((l) => l.date === date).reduce((a, l) => a + (l.sets || 1), 0);

@@ -1,13 +1,20 @@
 import { useEffect, useState } from 'react';
 import { Trash2 } from 'lucide-react';
-import { useApp, useCol } from '../AppContext';
+import { useDataStore } from '../datastore/DataStore';
+import { useWeights } from './useWeights';
+import { useProfile } from '../identity/ProfileProvider';
+import { useUnits } from '../shared/UnitsProvider';
 import PlateBar from '../ui/PlateBar';
 import ChartCard from '../ui/ChartCard';
-import { COLORS, byDate, fmtDate, progressPct, shortDate, todayStr } from '../utils';
+import { COLORS } from '../ui/colors';
+import { byDate, fmtDate, shortDate, todayStr } from '../shared/dates';
+import { progressPct } from './bodyMath';
 
 export default function Body() {
-  const { profile, unit, show, toKg, saveProfile, add, del } = useApp();
-  const { items } = useCol('weights');
+  const { profile, saveProfile } = useProfile();
+  const { unit, show, toKg } = useUnits();
+  const { add, del } = useDataStore();
+  const { items } = useWeights();
   const sorted = [...items].sort(byDate);
   const current = sorted.length ? sorted[sorted.length - 1].value : profile.startWeight;
   const pct = progressPct(profile.startWeight, current, profile.targetWeight);

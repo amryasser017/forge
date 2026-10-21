@@ -1,8 +1,7 @@
 import { NavLink } from 'react-router-dom';
-import { signOut } from 'firebase/auth';
 import { BarChart3, CalendarDays, Dumbbell, LayoutDashboard, LogOut, ScanLine, Scale, Settings } from 'lucide-react';
-import { auth } from '../firebase';
-import { useApp } from '../AppContext';
+import { useAuth } from '../identity/AuthProvider';
+import { useProfile } from '../identity/ProfileProvider';
 
 const NAV = [
   { to: '/', label: 'Home', icon: LayoutDashboard, end: true },
@@ -15,7 +14,8 @@ const NAV = [
 ];
 
 export default function Layout({ children }) {
-  const { profile } = useApp();
+  const { profile } = useProfile();
+  const { signOut } = useAuth();
   return (
     <div className="shell">
       <aside className="side">
@@ -33,7 +33,7 @@ export default function Layout({ children }) {
             <div className="avatar">{(profile?.name || '?').slice(0, 1).toUpperCase()}</div>
             <div className="who-name">{profile?.name}</div>
           </div>
-          <button className="icon-btn" title="Log out" onClick={() => signOut(auth)}>
+          <button className="icon-btn" title="Log out" onClick={signOut}>
             <LogOut size={18} />
           </button>
         </div>

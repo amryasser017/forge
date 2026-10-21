@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { signOut } from 'firebase/auth';
-import { auth } from '../../firebase';
-import { useApp } from '../../AppContext';
-import { WEEK_GOAL } from '../../utils';
+import { useAuth } from '../../identity/AuthProvider';
+import { useProfile } from '../../identity/ProfileProvider';
+import { WEEK_GOAL } from '../../attendance/attendance';
 
 export default function Settings() {
-  const { profile, user, saveProfile } = useApp();
+  const { profile, saveProfile } = useProfile();
+  const { user, signOut } = useAuth();
   const [name, setName] = useState(profile.name || '');
   const [saved, setSaved] = useState(false);
 
@@ -40,7 +40,7 @@ export default function Settings() {
         </div>
         <button className="btn primary">{saved ? 'Saved' : 'Save changes'}</button>
       </form>
-      <button className="btn ghost" onClick={() => signOut(auth)}>Log out</button>
+      <button className="btn ghost" onClick={signOut}>Log out</button>
     </div>
   );
 }

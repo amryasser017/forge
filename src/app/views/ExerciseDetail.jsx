@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Archive, ArrowLeft, Pencil, Trash2, Trophy } from 'lucide-react';
-import { useApp, useCol } from '../../AppContext';
+import { useDataStore } from '../../datastore/DataStore';
+import { useExerciseDocs } from '../../library/useExerciseDocs';
+import { useLogs } from '../../logging/useLogs';
+import { useUnits } from '../../shared/UnitsProvider';
 import ChartCard from '../../ui/ChartCard';
 import ExerciseMedia from '../../library/components/ExerciseMedia';
 import FavoriteButton from '../../library/components/FavoriteButton';
@@ -9,15 +12,19 @@ import HowTo from '../../library/components/HowTo';
 import AddToPlanButton from '../../plan/components/AddToPlanButton';
 import MuscleChips from '../../library/components/MuscleChips';
 import { datasetIdOf, ensureLibExercise, useExerciseLibrary } from '../../library/exerciseData';
-import { COLORS, byDate, computePRs, epley, fmtDate, r1, shortDate, todayStr } from '../../utils';
+import { COLORS } from '../../ui/colors';
+import { byDate, fmtDate, shortDate, todayStr } from '../../shared/dates';
+import { computePRs, epley } from '../../progress/prs';
+import { r1 } from '../../shared/units';
 
 export default function ExerciseDetail() {
   const { id } = useParams();
   const nav = useNavigate();
-  const app = useApp();
-  const { add, upd, del, show, toKg, unit } = app;
-  const exercises = useCol('exercises');
-  const allLogs = useCol('logs').items;
+  const store = useDataStore();
+  const { add, upd, del } = store;
+  const { show, toKg, unit } = useUnits();
+  const exercises = useExerciseDocs();
+  const allLogs = useLogs().items;
   const lib = useExerciseLibrary();
   const doc = exercises.items.find((x) => x.id === id);
   // A library exercise you have not logged or favorited yet has no doc; it is created on first use.
@@ -51,7 +58,7 @@ export default function ExerciseDetail() {
     const kg = toKg(weight);
     if (kg == null) return;
     const wasPR = logs.length > 0 && kg > best;
-    if (ex.virtual) await ensureLibExercise(app, libEx);
+    if (ex.virtual) await ensureLibExercise(store, libEx);
     await add('logs', { exerciseId: id, exerciseName: ex.name, weight: kg, reps: parseInt(reps, 10) || 1, sets: parseInt(sets, 10) || 1, date });
     setPr(wasPR); if (wasPR) setTimeout(() => setPr(false), 4000);
     setWeight(''); setReps(''); setSets('');

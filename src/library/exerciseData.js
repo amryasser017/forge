@@ -37,6 +37,6 @@ export function imageUrls(ex, i = 0) {
 }
 
 /** Create the user's own doc for a library exercise the first time it is needed (idempotent, never overwrites). */
-export function ensureLibExercise(app, libEx) {
-  return app.ensureDoc('exercises', libDocId(libEx.id), { name: libEx.name, libId: libEx.id, favorite: false, archived: false });
+export function ensureLibExercise(store, libEx) {
+  return store.ensureDoc('exercises', libDocId(libEx.id), { name: libEx.name, libId: libEx.id, favorite: false, archived: false });
 }

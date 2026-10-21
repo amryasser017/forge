@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { Timer, Trophy } from 'lucide-react';
-import { useApp, useCol } from '../AppContext';
+import { useCol, useDataStore } from '../datastore/DataStore';
+import { useUnits } from '../shared/UnitsProvider';
 import Stepper from '../ui/Stepper';
 import { ensureLibExercise } from '../library/exerciseData';
-import { DEFAULT_REPS, DEFAULT_SETS, addItem, dayKeyOf, hasItem } from '../plan/plan';
-import { usePlanActions } from '../plan/usePlanActions';
-import { bestWeight, lastLog, setsOn } from '../progress/exerciseStats';
+import { bestWeight, lastLog } from '../progress/exerciseStats';
+import { setsOn } from './logReader';
 import { getDraft, setDraft } from './setDrafts';
-import { todayStr } from '../utils';
+import { todayStr } from '../shared/dates';
 
 const REST_SECONDS = 90;
 
@@ -24,9 +24,11 @@ function RestTimer({ run }) {
 }
 
 /** Quick set logger. Writes to users/{uid}/logs exactly like the detail page: one doc per set. */
-export default function LogTab({ ex, libEx, logs, targetSets }) {
-  const app = useApp();
-  const { add, show, toKg, unit } = app;
+/** `children` is an optional slot below the Log button (the shell puts the "Add to today's plan" button there). */
+export default function LogTab({ ex, libEx, logs, targetSets, children }) {
+  const store = useDataStore();
+  const { add } = store;
+  const { show, toKg, unit } = useUnits();
   const today = todayStr();
   const last = lastLog(logs);
   const draft = getDraft(ex.id);
@@ -37,10 +39,6 @@ export default function LogTab({ ex, libEx, logs, targetSets }) {
   const [rest, setRest] = useState(0);
   const [useTimer, setUseTimer] = useState(() => { try { return localStorage.getItem('forge.restTimer') === '1'; } catch { return false; } });
   const [busy, setBusy] = useState(false);
-  const { plan, update } = usePlanActions();
-  const todayKey = dayKeyOf();
-  const inToday = hasItem(plan[todayKey], ex.id);
-  const [added, setAdded] = useState(false);
   const alive = useRef(true);
   useEffect(() => () => { alive.current = false; }, []);
 
@@ -53,22 +51,13 @@ export default function LogTab({ ex, libEx, logs, targetSets }) {
     setBusy(true);
     try {
       const wasPR = logs.length > 0 && kg > bestWeight(logs);
-      if (ex.virtual && libEx) await ensureLibExercise(app, libEx);
+      if (ex.virtual && libEx) await ensureLibExercise(store, libEx);
       await add('logs', { exerciseId: ex.id, exerciseName: ex.name, weight: kg, reps: parseInt(reps, 10) || 1, sets: 1, date: today });
       setDraft(ex.id, null);
       if (!alive.current) return;
       setPr(wasPR);
       if (wasPR) setTimeout(() => alive.current && setPr(false), 4000);
       if (useTimer) setRest((n) => n + 1);
-    } finally { if (alive.current) setBusy(false); }
-  }
-  async function addToToday() {
-    if (busy) return;
-    setBusy(true);
-    try {
-      if (ex.virtual && libEx) await ensureLibExercise(app, libEx);
-      await update(todayKey, (d) => addItem({ ...d, rest: false }, ex.id, DEFAULT_SETS, last?.reps ?? DEFAULT_REPS));
-      if (alive.current) setAdded(true);
     } finally { if (alive.current) setBusy(false); }
   }
   const toggleTimer = (on) => {
@@ -89,12 +78,7 @@ export default function LogTab({ ex, libEx, logs, targetSets }) {
         <div><small className="muted">Reps</small><Stepper label="Reps" value={reps} onChange={(r) => edit(weight, r)} min={1} max={100} /></div>
       </div>
       <button type="button" className="btn primary big-btn" onClick={log} disabled={busy}>Log set</button>
-      {!inToday && (
-        <button type="button" className="btn ghost" onClick={addToToday} disabled={busy}>
-          {plan[todayKey].rest ? "Add to today's plan (turns rest day off)" : "Add to today's plan"}
-        </button>
-      )}
-      {inToday && added && <p className="muted" role="status">Added to today's plan.</p>}
+      {children}
       <label className="switch">
         <input type="checkbox" checked={useTimer} onChange={(e) => toggleTimer(e.target.checked)} />
         <span>Rest timer ({REST_SECONDS}s)</span>

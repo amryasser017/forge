@@ -1,20 +1,24 @@
 import { useDeferredValue, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, History, Plus, Search, Star, X } from 'lucide-react';
-import { useApp, useCol } from '../../AppContext';
+import { useDataStore } from '../../datastore/DataStore';
+import { useExerciseDocs } from '../../library/useExerciseDocs';
+import { useLogs } from '../../logging/useLogs';
+import { useUnits } from '../../shared/UnitsProvider';
 import ExerciseImage from '../../library/components/ExerciseImage';
 import MyCustom from '../../library/components/MyCustom';
 import Modal from '../../ui/Modal';
 import { CUSTOM_FOLDER, EQUIPMENT_GROUPS, FOLDERS, FOLDER_BY_KEY, MECHANIC_LABEL, equipmentGroup, folderKeyOf } from '../../library/data/muscleFolders';
 import { POPULAR_SET } from '../../library/data/popular';
-import { customView, docView as makeDocView, libView, recentExerciseIds } from '../../library/exerciseViews';
+import { customView, docView as makeDocView, libView } from '../../library/exerciseViews';
+import { recentExerciseIds } from '../../logging/logReader';
 import { useExerciseLibrary } from '../../library/exerciseData';
 import { folderItems, searchIndex } from '../../library/exerciseSearch';
 
 const PAGE = 40;
 
 function ExerciseCard({ v, last, showFolder }) {
-  const { show, unit } = useApp();
+  const { show, unit } = useUnits();
   const f = FOLDER_BY_KEY[v.folder];
   return (
     <Link to={`/exercises/${v.docId}`} className="ex-card">
@@ -39,7 +43,7 @@ function CardSkeletons({ n = 6 }) {
 }
 
 function CreateCustomModal({ docs, onClose, folder }) {
-  const { add } = useApp();
+  const { add } = useDataStore();
   const [name, setName] = useState('');
   const [folderKey, setFolderKey] = useState(folder && FOLDER_BY_KEY[folder] ? folder : '');
   const [equipment, setEquipment] = useState('');
@@ -78,8 +82,8 @@ function CreateCustomModal({ docs, onClose, folder }) {
 }
 
 export default function Exercises() {
-  const docs = useCol('exercises').items;
-  const logs = useCol('logs').items;
+  const docs = useExerciseDocs().items;
+  const logs = useLogs().items;
   const { data, index, byId, error } = useExerciseLibrary();
   const [params, setParams] = useSearchParams();
   const folderKey = params.get('folder');
@@ -180,7 +184,7 @@ export default function Exercises() {
         <>
           <button className="back" onClick={() => goFolder(null)}><ArrowLeft size={16} /> All folders</button>
           <h2 className="folder-title"><span aria-hidden>{CUSTOM_FOLDER.emoji}</span> {CUSTOM_FOLDER.label}</h2>
-          <MyCustom />
+          <MyCustom logs={logs} />
         </>
       ) : folder ? (
         <>

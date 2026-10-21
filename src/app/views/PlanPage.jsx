@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { CalendarClock, LayoutTemplate } from 'lucide-react';
-import { useApp, useCol } from '../../AppContext';
+import { useExerciseDocs } from '../../library/useExerciseDocs';
+import { useLogs } from '../../logging/useLogs';
+import { useProfile } from '../../identity/ProfileProvider';
 import DayCard from '../../plan/components/DayCard';
 import PlanPicker from '../../plan/components/PlanPicker';
 import TemplatesModal from '../../plan/components/TemplatesModal';
@@ -8,17 +10,18 @@ import DayPickerSheet from '../../plan/components/DayPickerSheet';
 import ShiftWeekSheet from '../../plan/components/ShiftWeekSheet';
 import UndoToast from '../../ui/UndoToast';
 import { useExerciseLibrary } from '../../library/exerciseData';
-import { groupLogs } from '../../library/exerciseViews';
+import { groupLogs } from '../../logging/logReader';
 import { DAYS, clearDay, copyDay, dayKeyOf, moveDay, planGoal, shiftWeek, swapDays } from '../../plan/plan';
+import { usePlan } from '../../plan/usePlan';
 import { usePlanActions } from '../../plan/usePlanActions';
 import { useExerciseSheet } from './useExerciseSheet';
 
 export default function Plan() {
-  const { profile, saveProfile } = useApp();
+  const { profile, saveProfile } = useProfile();
   const { plan, update, apply, addExercise, applyTemplate } = usePlanActions();
-  const docs = useCol('exercises').items;
-  const logs = useCol('logs').items;
-  const schedule = useCol('schedule').items;
+  const docs = useExerciseDocs().items;
+  const logs = useLogs().items;
+  const { unplacedDays } = usePlan();
   const { data, byId } = useExerciseLibrary();
   const { open: openSheet, sheet } = useExerciseSheet();
   const today = dayKeyOf();
@@ -67,7 +70,7 @@ export default function Plan() {
   const flip = (k) => setOpen((o) => { const n = new Set(o); n.has(k) ? n.delete(k) : n.add(k); return n; });
   const goal = planGoal(plan);
   const planHasItemsAny = (p) => DAYS.some((d) => p[d.key].items.length > 0 || p[d.key].rest);
-  const unplaced = schedule.filter((s) => s.weekday == null).length;
+  const unplaced = unplacedDays.length;
 
   return (
     <div className="page">
@@ -107,7 +110,7 @@ export default function Plan() {
       {shifting && <ShiftWeekSheet plan={plan} onClose={() => setShifting(false)} onApply={(n) => { setShifting(false); change(shiftWeek(plan, n), `Shifted the week ${n > 0 ? n + ' later' : -n + ' earlier'}`); }} />}
       {picking && <DayPickerSheet kind={picking.kind} from={picking.from} plan={plan} onPick={pickDay} onClose={() => setPicking(null)} />}
       <UndoToast toast={toast} onDismiss={() => setToast(null)} />
-      {adding && <PlanPicker info={DAYS.find((d) => d.key === adding)} day={plan[adding]} onAdd={(v, s, r) => addExercise(adding, v, s, r)} onClose={() => setAdding(null)} />}
+      {adding && <PlanPicker info={DAYS.find((d) => d.key === adding)} day={plan[adding]} docs={docs} logs={logs} onAdd={(v, s, r) => addExercise(adding, v, s, r)} onClose={() => setAdding(null)} />}
       {templates && <TemplatesModal plan={plan} libData={data} onApply={applyTemplate} onClose={() => setTemplates(false)} />}
     </div>
   );

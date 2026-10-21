@@ -1,5 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { useApp } from '../AppContext';
+import { useAuth } from '../identity/AuthProvider';
+import { ProfileProvider, useProfile } from '../identity/ProfileProvider';
+import { DataStoreProvider } from '../datastore/DataStore';
+import { UnitsProvider } from '../shared/UnitsProvider';
 import Layout from './Layout';
 import Login from '../identity/Login';
 import Dashboard from './views/Dashboard';
@@ -11,11 +14,26 @@ import Charts from './views/Charts';
 import Plan from './views/PlanPage';
 import Settings from './views/Settings';
 
+const Splash = () => <div className="splash">FORGE</div>;
+
+/** Wires the components together: session -> data store (needs the uid) -> profile -> units. */
 export default function App() {
-  const { user, profile } = useApp();
-  if (user === undefined || (user && !profile)) return <div className="splash">FORGE</div>;
+  const { user } = useAuth();
+  if (user === undefined) return <Splash />;
   if (!user) return <Login />;
   return (
+    <DataStoreProvider uid={user.uid}>
+      <ProfileProvider user={user} fallback={<Splash />}>
+        <Shell />
+      </ProfileProvider>
+    </DataStoreProvider>
+  );
+}
+
+function Shell() {
+  const { profile } = useProfile();
+  return (
+    <UnitsProvider unit={profile.unit || 'kg'}>
     <Layout>
       <Routes>
         <Route path="/" element={<Dashboard />} />
@@ -29,5 +47,6 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>
+    </UnitsProvider>
   );
 }
