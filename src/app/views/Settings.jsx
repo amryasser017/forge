@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../../identity/AuthProvider';
-import { useProfile } from '../../identity/ProfileProvider';
+import { useAuth, useProfile } from '@forge/identity';
 import { WEEK_GOAL } from '../../attendance/attendance';
 
 export default function Settings() {

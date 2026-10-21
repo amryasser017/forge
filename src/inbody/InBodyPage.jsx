@@ -1,14 +1,10 @@
 import { useMemo, useState } from 'react';
 import { ArrowDown, ArrowUp, Camera, Plus, Trash2 } from 'lucide-react';
-import { useDataStore } from '../datastore/DataStore';
+import { useDataStore } from '@forge/datastore';
+import { useUnits, byDate, fmtDate, shortDate, todayStr, r1 } from '@forge/shared';
+import { ChartCard, Modal, COLORS } from '@forge/ui';
 import { useReports } from './useReports';
-import { useUnits } from '../shared/UnitsProvider';
-import ChartCard from '../ui/ChartCard';
-import Modal from '../ui/Modal';
-import { COLORS } from '../ui/colors';
 import { IN_METRICS, compressImage } from './inbody';
-import { byDate, fmtDate, shortDate, todayStr } from '../shared/dates';
-import { r1 } from '../shared/units';
 
 const EMPTY = { date: todayStr(), weight: '', muscle: '', fatMass: '', fatPct: '', visceral: '', bmr: '', note: '' };
 

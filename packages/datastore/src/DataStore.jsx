@@ -2,7 +2,7 @@
 // The signed-in uid is injected by the shell (<DataStoreProvider uid=...>), so this component does not depend on Identity.
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db } from './firebase';
 
 const Ctx = createContext(null);
 

@@ -1,5 +1,5 @@
 // Gym days, weekly goal and week streak rules (Attendance & Goals, C7).
-import { todayStr, weekStart, ymd } from '../shared/dates';
+import { todayStr, weekStart, ymd } from '@forge/shared';
 
 export const WEEK_GOAL = 3; // default gym days per week (users can change it in Settings)
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useDataStore } from '../../datastore/DataStore';
+import { useDataStore } from '@forge/datastore';
 import { ensureLibExercise } from '../../library/exerciseData';
 import { DEFAULT_REPS, DEFAULT_SETS, addItem, dayKeyOf, hasItem } from '../plan';
 import { usePlanActions } from '../usePlanActions';

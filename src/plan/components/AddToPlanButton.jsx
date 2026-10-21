@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CalendarPlus, Check } from 'lucide-react';
-import Modal from '../../ui/Modal';
+import { Modal } from '@forge/ui';
 import { DAYS, hasItem } from '../plan';
 import { libView, customView } from '../../library/exerciseViews';
 import { usePlanActions } from '../usePlanActions';

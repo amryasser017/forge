@@ -1,4 +1,4 @@
-import { useUnits } from '../shared/UnitsProvider';
+import { useUnits } from '@forge/shared';
 import { bestWeight, lastLog, trendOf } from './exerciseStats';
 import { TrendArrow } from './ProgressPanel';
 

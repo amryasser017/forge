@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Star } from 'lucide-react';
-import { useDataStore } from '../../datastore/DataStore';
+import { useDataStore } from '@forge/datastore';
 import { ensureLibExercise } from '../exerciseData';
 
 /** Star toggle. For a library exercise that has no doc yet, the doc is created first. */

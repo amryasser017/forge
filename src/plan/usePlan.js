@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
-import { useCol, useDataStore } from '../datastore/DataStore';
+import { useCol, useDataStore } from '@forge/datastore';
+import { useProfile } from '@forge/identity';
 import { useExerciseDocs } from '../library/useExerciseDocs';
-import { useProfile } from '../identity/ProfileProvider';
 import { DAY_KEYS, migrateSchedule, planFromDocs } from './plan';
 
 let migrating = false;

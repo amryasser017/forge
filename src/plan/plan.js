@@ -1,7 +1,7 @@
 // Weekly plan: users/{uid}/plan/{sat|sun|mon|tue|wed|thu|fri}
 // { label: string, rest: boolean, focus: [muscleFolderKeys], items: [{ exerciseId, targetSets, targetReps, note }] }
 // The week is displayed Saturday -> Friday (see WEEK_ORDER in utils.js).
-import { WEEK_ORDER } from '../shared/dates';
+import { WEEK_ORDER } from '@forge/shared';
 
 const BY_GETDAY = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 const NAMES = { sun: 'Sunday', mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday' };

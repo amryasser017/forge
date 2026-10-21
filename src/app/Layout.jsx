@@ -1,7 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { BarChart3, CalendarDays, Dumbbell, LayoutDashboard, LogOut, ScanLine, Scale, Settings } from 'lucide-react';
-import { useAuth } from '../identity/AuthProvider';
-import { useProfile } from '../identity/ProfileProvider';
+import { useAuth, useProfile } from '@forge/identity';
 
 const NAV = [
   { to: '/', label: 'Home', icon: LayoutDashboard, end: true },

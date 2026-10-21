@@ -1,13 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Trash2 } from 'lucide-react';
-import { useDataStore } from '../datastore/DataStore';
+import { useDataStore } from '@forge/datastore';
+import { useProfile } from '@forge/identity';
+import { useUnits, byDate, fmtDate, shortDate, todayStr } from '@forge/shared';
+import { PlateBar, ChartCard, COLORS } from '@forge/ui';
 import { useWeights } from './useWeights';
-import { useProfile } from '../identity/ProfileProvider';
-import { useUnits } from '../shared/UnitsProvider';
-import PlateBar from '../ui/PlateBar';
-import ChartCard from '../ui/ChartCard';
-import { COLORS } from '../ui/colors';
-import { byDate, fmtDate, shortDate, todayStr } from '../shared/dates';
 import { progressPct } from './bodyMath';
 
 export default function Body() {

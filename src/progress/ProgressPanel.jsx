@@ -1,10 +1,9 @@
 import { ArrowDown, ArrowRight, ArrowUp, Trophy } from 'lucide-react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { useUnits } from '../shared/UnitsProvider';
+import { useUnits, fmtDate, shortDate } from '@forge/shared';
+import { COLORS } from '@forge/ui';
 import { bestWeight, lastSets, sessionsOf, trendOf } from './exerciseStats';
-import { COLORS } from '../ui/colors';
 import { computePRs } from './prs';
-import { fmtDate, shortDate } from '../shared/dates';
 
 export function TrendArrow({ trend }) {
   if (!trend) return null;

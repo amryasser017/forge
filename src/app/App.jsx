@@ -1,10 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { useAuth } from '../identity/AuthProvider';
-import { ProfileProvider, useProfile } from '../identity/ProfileProvider';
-import { DataStoreProvider } from '../datastore/DataStore';
-import { UnitsProvider } from '../shared/UnitsProvider';
+import { useAuth, ProfileProvider, useProfile, Login } from '@forge/identity';
+import { DataStoreProvider } from '@forge/datastore';
+import { UnitsProvider } from '@forge/shared';
 import Layout from './Layout';
-import Login from '../identity/Login';
 import Dashboard from './views/Dashboard';
 import Body from '../body/BodyPage';
 import Exercises from './views/Lifts';

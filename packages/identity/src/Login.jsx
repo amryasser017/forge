@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, updateProfile } from 'firebase/auth';
-import { auth, googleProvider } from '../firebase';
+import { auth, googleProvider } from '@forge/datastore';
 
 const friendly = (code = '') => {
   if (code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found'))

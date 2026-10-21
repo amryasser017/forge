@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowDown, ArrowLeftRight, ArrowUp, ChevronDown, Copy, GripVertical, MoveRight, Plus, Trash2, X } from 'lucide-react';
 import ExerciseImage from '../../library/components/ExerciseImage';
 import Glance from '../../progress/Glance';
-import Stepper from '../../ui/Stepper';
+import { Stepper } from '@forge/ui';
 import { FOLDERS, FOLDER_BY_KEY } from '../../library/data/muscleFolders';
 import { moveItem, removeItem, setTargets, toggleFocus } from '../plan';
 

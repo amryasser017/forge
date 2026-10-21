@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
-import Sheet from '../../ui/Sheet';
-import Stepper from '../../ui/Stepper';
+import { Sheet, Stepper } from '@forge/ui';
 import { DAYS, shiftWeek } from '../plan';
 
 const describe = (d) => (d.rest ? 'Rest day' : d.items.length === 0 ? 'Empty' : `${d.label || 'Workout'} · ${d.items.length}`);

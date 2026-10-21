@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Modal from '../../ui/Modal';
+import { Modal } from '@forge/ui';
 import { TEMPLATES } from '../planTemplates';
 import { DAYS, planHasItems } from '../plan';
 
