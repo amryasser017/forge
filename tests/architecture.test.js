@@ -35,7 +35,7 @@ describe('component architecture', () => {
   it('every package and folder is a known component', () => {
     const folders = new Set(list(SRC).filter(isCode).map((f) => path.relative(SRC, f).split(path.sep)[0]).filter((x) => !x.includes('.')));
     for (const f of folders) expect(Object.keys(FOLDERS), `unknown folder src/${f}`).toContain(f);
-    const pkgDirs = fs.readdirSync(PKGS);
+    const pkgDirs = fs.readdirSync(PKGS, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name);
     for (const p of pkgDirs) expect(Object.keys(PACKAGES), `unknown package ${p}`).toContain(p);
   });
 
