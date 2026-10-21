@@ -1,6 +1,6 @@
 # Forge UML diagrams (24 images)
 
-Rendered with PlantUML from `src/*.puml` (shared style: `src/style.iuml`). Regenerate: `java -jar plantuml.jar -tpng -o .. src/<file>.puml`.
+Use case, class and sequence diagrams: PlantUML from `src/*.puml` (shared style: `src/style.iuml`). Component diagrams (ball-and-socket interfaces, ports, sub systems): hand-laid SVG from `tools/cp0.mjs` to `tools/cp3.mjs` (needs Playwright). Regenerate PlantUML: `java -jar plantuml.jar -tpng -o .. src/<file>.puml`.
 
 | Diagram | Images |
 |---|---|
