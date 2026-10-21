@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import data from '../src/data/exercises.json';
-import { exerciseSummary } from '../src/lib/exerciseSummary';
-import { bestWeight, lastLog, lastSets, sessionsOf, setsOn, trendOf } from '../src/lib/exerciseStats';
+import data from '../src/library/data/exercises.json';
+import { exerciseSummary } from '../src/library/exerciseSummary';
+import { bestWeight, lastLog, lastSets, sessionsOf, setsOn, trendOf } from '../src/progress/exerciseStats';
 
 const log = (date, weight, reps = 8, sets = 1, secs = 0) => ({ id: `${date}-${weight}-${secs}`, date, weight, reps, sets, createdAt: { seconds: secs } });
 
