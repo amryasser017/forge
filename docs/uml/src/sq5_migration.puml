@@ -1,0 +1,41 @@
+@startuml
+!include style.iuml
+title Sequence 5 of 8: One-time migration of the old schedule into the plan (UC-10)
+skinparam sequenceMessageAlign left
+actor "athlete : Athlete" as A
+participant "page : Plan or Home view" as PV
+participant "usePlan : PlanService" as UP
+participant "store : DataStore" as DS
+participant "mig : PlanMigration" as M
+participant "db : Firestore" as DB
+
+A -> PV : open Plan or Home
+PV -> UP : usePlan()
+UP -> DS : useCol("plan"), useCol("schedule"), useCol("exercises")
+DS --> UP : items and loading flags
+UP -> UP : wait until all three are loaded
+alt plan already has documents, or profile.planMigrated, or schedule is empty, or already migrating
+  UP --> PV : plan (7 days, empty days filled in)
+else first use with an old schedule
+  UP -> M : migrateSchedule(scheduleDocs, existing exercise ids)
+  M --> UP : {plan, unplaced}
+  note right of M
+    Days without a weekday are only counted.
+    Days not scheduled become rest days.
+    Missing exercises are skipped.
+  end note
+  loop 7 days
+    UP -> DS : merge("plan", day, data)
+    DS -> DB : setDoc(plan/day, data, merge)
+  end
+  UP -> DS : saveProfile({planMigrated: true})
+  DS -> DB : setDoc(users/{uid}, merge)
+  DB --> PV : live snapshot (plan)
+end
+opt custom days without weekday exist and hideUnplaced is not set
+  PV --> A : notice "N custom days were not placed. They are still saved."
+  A -> PV : tap "Got it"
+  PV -> DS : saveProfile({hideUnplaced: true})
+end
+note over DB : The old schedule documents are never changed or deleted.
+@enduml

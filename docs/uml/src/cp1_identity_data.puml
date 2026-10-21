@@ -1,0 +1,68 @@
+@startuml
+!include style.iuml
+skinparam linetype ortho
+title Component Diagram 1 of 3: Identity, Data Store and Shared Kernel
+
+component "C1 Identity & Profile" as C1
+component "C2 Data Store" as C2
+component "C10 Units & Dates\n(Shared Kernel)" as C10
+component "C8 Body Tracking" as C8
+component "C12 App Shell\n(views)" as C12
+cloud "Firebase" {
+  component "Firebase Auth" as FAUTH
+  database "Cloud Firestore" as FS
+}
+
+interface "IAuth" as IAuth
+interface "IProfile" as IProf
+interface "IDataStore" as IDS
+interface "IUnits" as IUn
+interface "IDates" as IDt
+
+C1 -up- IAuth
+C1 -up- IProf
+C2 -up- IDS
+C10 -up- IUn
+C10 -up- IDt
+
+C1 ..> IDS : requires
+C1 ..> FAUTH : uses SDK
+C2 ..> FS : uses SDK
+C8 ..> IProf : requires
+C8 ..> IUn : requires
+C12 ..> IAuth : requires
+C12 ..> IProf : requires
+C12 ..> IUn : requires
+C12 ..> IDt : requires
+
+note right of IAuth
+  createUserWithEmailAndPassword + updateProfile
+  signInWithEmailAndPassword
+  signInWithPopup(Google)
+  signOut
+  user (onAuthStateChanged)
+end note
+note right of IProf
+  profile: name, unit, startWeight,
+  targetWeight, targetDate, weeklyGoal
+  saveProfile(partial)
+end note
+note left of IDS
+  useCol(collection): items, loading
+  add(collection, data)
+  put(collection, id, data)
+  merge(collection, id, data)
+  ensureDoc(collection, id, data)
+  upd(collection, id, data)
+  del(collection, id)
+end note
+note left of IUn
+  show(kg), toKg(value), r1(n)
+  unit = kg | lb
+end note
+note left of IDt
+  ymd, todayStr, fmtDate, shortDate
+  weekStart (Saturday), byDate
+  DAY_NAMES, WEEK_ORDER
+end note
+@enduml

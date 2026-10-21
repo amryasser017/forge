@@ -1,0 +1,24 @@
+@startuml
+!include style.iuml
+left to right direction
+skinparam nodesep 14
+skinparam ranksep 90
+title Use Cases 4 of 4: Body, InBody and Charts
+actor "Athlete" as A
+actor "Cloud Firestore" as FS <<system>>
+rectangle "Forge" {
+  usecase "UC-17\nSet weight goal and log weigh-ins\n<size:10>(Body.jsx)</size>" as UC17
+  usecase "UC-18\nRecord an InBody report\n<size:10>(InBody.jsx)</size>" as UC18
+  usecase "UC-19\nCompare InBody reports\n<size:10>(InBody.jsx)</size>" as UC19
+  usecase "UC-20\nView charts\n<size:10>(Charts.jsx)</size>" as UC20
+}
+A --> UC17
+A --> UC18
+A --> UC19
+A --> UC20
+UC17 -- FS
+UC18 -- FS
+UC19 -- FS
+UC20 -- FS
+note right of UC18 : Image compressed in the browser\nand stored inside the report document
+@enduml

@@ -1,0 +1,53 @@
+@startuml
+!include style.iuml
+title Sequence 4 of 8: Shift the whole week and undo (UC-11)
+skinparam sequenceMessageAlign left
+actor "athlete : Athlete" as A
+participant "page : PlanView" as PV
+participant "sheet : ShiftWeekSheet" as SW
+participant "ops : PlanOps" as PO
+participant "plan : PlanActions" as PA
+participant "store : DataStore" as DS
+participant "db : Firestore" as DB
+participant "toast : UndoToast" as UT
+
+A -> PV : tap "Shift week"
+PV -> SW : open(plan)
+A -> SW : set days to shift (n = 1)
+SW -> PO : shiftWeek(plan, n)
+PO --> SW : preview plan
+SW --> A : table "Now / After"
+A -> SW : tap "Shift week"
+SW -> PV : onApply(n)
+activate PV
+PV -> PO : shiftWeek(plan, n)
+PO --> PV : next plan (days wrap around)
+PV -> PV : prev = current plan
+PV -> PA : apply(next)
+activate PA
+PA -> PO : dayChanged(before[k], next[k]) for each day
+loop each changed day (in parallel)
+  PA -> DS : merge("plan", k, next[k])
+  DS -> DB : setDoc(plan/k, day, merge)
+end
+alt a write fails
+  DB --> PA : error
+  PA -> PA : restore previous plan
+  PA --> PV : throw
+  PV --> A : "Could not save the change..."
+else all saved
+  PA --> PV : done
+  deactivate PA
+  PV -> UT : show("Shifted the week 1 later", onUndo)
+  UT --> A : message with Undo for 8 seconds
+  opt athlete taps Undo
+    A -> UT : Undo
+    UT -> PV : onUndo()
+    PV -> PA : apply(prev)
+    PA -> DS : merge changed days back
+    DS -> DB : setDoc(...)
+    DB --> A : week restored exactly
+  end
+end
+deactivate PV
+@enduml

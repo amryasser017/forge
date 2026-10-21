@@ -1,0 +1,52 @@
+@startuml
+!include style.iuml
+skinparam linetype ortho
+title Class Diagram 7 of 7: Data entities and owners (overview)
+skinparam classAttributeIconSize 0
+
+package "C1 Identity & Profile" {
+  class UserProfile
+}
+package "C3 Exercise Library" {
+  class ExerciseDoc
+  class UserFolder
+  class LibraryExercise <<dataset>>
+}
+package "C4 Workout Logging" {
+  class LogEntry
+}
+package "C6 Weekly Plan" {
+  class WeeklyPlan
+  class PlanDay
+  class PlanItem
+  class LegacyScheduleDay
+}
+package "C7 Attendance & Goals" {
+  class CheckIn
+}
+package "C8 Body Tracking" {
+  class WeightEntry
+}
+package "C9 InBody Reports" {
+  class InBodyReport
+}
+
+UserProfile "1" o-- "*" ExerciseDoc : users/{uid}/exercises
+UserProfile "1" o-- "*" UserFolder : folders
+UserProfile "1" o-- "*" LogEntry : logs
+UserProfile "1" o-- "1" WeeklyPlan : plan
+UserProfile "1" o-- "*" LegacyScheduleDay : schedule (read-only)
+UserProfile "1" o-- "*" CheckIn : checkins
+UserProfile "1" o-- "*" WeightEntry : weights
+UserProfile "1" o-- "*" InBodyReport : inbody
+ExerciseDoc "0..1" -- "0..1" LibraryExercise : libId
+UserFolder "*" -- "*" ExerciseDoc
+LogEntry "*" --> "1" ExerciseDoc : exerciseId
+WeeklyPlan "1" *-- "7" PlanDay
+PlanDay "1" *-- "*" PlanItem
+PlanItem "*" --> "1" ExerciseDoc
+note bottom of UserProfile
+  Everything is stored under users/{uid}. Each collection
+  has exactly one owning component.
+end note
+@enduml

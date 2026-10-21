@@ -1,0 +1,46 @@
+@startuml
+!include style.iuml
+left to right direction
+skinparam nodesep 14
+skinparam ranksep 90
+title Use Cases 1 of 4: Account, Profile and Exercise Library
+actor "Athlete" as A
+actor "Firebase Auth\n(Email, Google)" as FA <<system>>
+actor "Cloud Firestore" as FS <<system>>
+actor "Image CDN" as CDN <<system>>
+actor "YouTube" as YT <<system>>
+rectangle "Forge" {
+  usecase "UC-01\nRegister account\n<size:10>(Login.jsx)</size>" as UC01
+  usecase "UC-02\nSign in\n<size:10>(Login.jsx, App.jsx)</size>" as UC02
+  usecase "UC-03\nSign out\n<size:10>(Settings.jsx, Layout.jsx)</size>" as UC03
+  usecase "UC-04\nEdit profile and settings\n<size:10>(Settings.jsx)</size>" as UC04
+  usecase "UC-05\nBrowse and search exercises\n<size:10>(Exercises.jsx)</size>" as UC05
+  usecase "UC-06\nView details and how-to\n<size:10>(ExerciseDetail.jsx, sheet)</size>" as UC06
+  usecase "UC-07\nManage favorites\n<size:10>(FavoriteButton)</size>" as UC07
+  usecase "UC-08\nManage custom exercises\n<size:10>(MyCustom.jsx)</size>" as UC08
+  usecase "UC-09\nManage exercise folders\n<size:10>(MyCustom.jsx)</size>" as UC09
+}
+A --> UC01
+A --> UC02
+A --> UC03
+A --> UC04
+A --> UC05
+A --> UC06
+A --> UC07
+A --> UC08
+A --> UC09
+UC01 -- FA
+UC01 -- FS
+UC02 -- FS
+UC02 -- FA
+UC03 -- FA
+UC04 -- FS
+UC05 -- FS
+UC07 -- FS
+UC08 -- FS
+UC09 -- FS
+UC06 -- CDN
+UC06 -- FS
+UC06 -- YT
+note right of UC01 : First sign-in creates the default profile\n(name, unit kg, empty goal)
+@enduml

@@ -1,0 +1,73 @@
+@startuml
+!include style.iuml
+skinparam linetype ortho
+title Component Diagram 2 of 3: Library, Logging and Progress
+
+component "C3 Exercise Library" as C3
+component "C4 Workout Logging" as C4
+component "C5 Progress & Analytics" as C5
+component "C6 Weekly Plan" as C6
+component "C8 Body Tracking" as C8
+component "C9 InBody Reports" as C9
+component "C2 Data Store" as C2
+component "C12 Views\n(Exercise sheet, detail)" as C12
+
+interface "IExerciseCatalog" as IEC
+interface "IExerciseSearch" as IES
+interface "ILogger" as ILG
+interface "ILogReader" as ILR
+interface "IProgress" as IPR
+interface "IDataStore" as IDS
+interface "IBodyReader" as IBR
+interface "IInBodyReader" as IIR
+
+C3 -up- IEC
+C3 -up- IES
+C4 -up- ILG
+C4 -up- ILR
+C5 -up- IPR
+
+C3 ..> IDS
+C4 ..> IDS
+C4 ..> IEC
+C5 ..> ILR
+C5 ..> IBR
+C5 ..> IIR
+C6 ..> IEC
+C6 ..> IES
+C6 ..> IPR
+C12 ..> IEC
+C12 ..> ILG
+C12 ..> IPR
+C8 -up- IBR
+C9 -up- IIR
+C2 -up- IDS
+
+note right of IEC
+  loadExercises(), byId, docView(doc)
+  imageUrls(ex, i), libDocId(id)
+  ensureLibExercise(libEx)
+  favorites, custom exercises, user folders
+end note
+note right of IES
+  buildIndex(data, popularSet)
+  searchIndex(index, query, filters)
+  folderItems(index, folder)
+end note
+note right of ILG
+  add('logs', {exerciseId, exerciseName,
+    weight, reps, sets, date})
+  del('logs', id)
+  getDraft(id), setDraft(id, values)
+end note
+note right of ILR
+  useCol('logs'): items
+  groupLogs(logs)
+  recentExerciseIds(logs, n)
+  setsOn(logs, date)
+end note
+note right of IPR
+  bestWeight, lastLog, lastSets, trendOf
+  sessionsOf, computePRs, epley
+end note
+@enduml

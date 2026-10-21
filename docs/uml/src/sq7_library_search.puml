@@ -1,0 +1,47 @@
+@startuml
+!include style.iuml
+title Sequence 7 of 8: Search the library, view an exercise and favorite it (UC-05, UC-06, UC-07)
+skinparam sequenceMessageAlign left
+actor "athlete : Athlete" as A
+participant "lifts : ExercisesView" as EV
+participant "lib : ExerciseLibrary" as LB
+participant "search : SearchIndex" as SI
+participant "detail : ExerciseDetailView" as ED
+participant "image : ExerciseImage" as IM
+participant "fav : FavoriteButton" as FV
+participant "store : DataStore" as DS
+participant "cdn : Image CDN" as CDN
+participant "yt : YouTube" as YT
+
+A -> EV : open Lifts
+EV -> LB : useExerciseLibrary()
+LB -> LB : loadExercises() : import("exercises.json") (separate bundle)
+LB -> SI : buildIndex(data, POPULAR_SET)
+SI --> LB : index
+LB --> EV : data, index, byId
+A -> EV : type "bench"
+EV -> EV : deferred query (useDeferredValue)
+EV -> SI : searchIndex(index, query, limit 300)
+SI -> SI : expandQuery (synonyms), rank, popular first
+SI --> EV : matches
+EV -> EV : libView(ex, docByLibId[ex.id])
+EV --> A : exercise cards
+A -> EV : tap a card
+EV -> ED : open /exercises/lib_<id>
+ED -> ED : doc missing, so use a virtual doc from the dataset
+ED -> IM : render start and end images
+IM -> CDN : GET jsDelivr image
+alt image fails
+  IM -> CDN : GET raw.githubusercontent image (fallback)
+end
+ED --> A : muscles, images, steps, "Watch how-to"
+opt tap "Watch how-to"
+  A -> YT : open search "<name> proper form" (new tab)
+end
+opt tap the star
+  A -> FV : toggle()
+  FV -> DS : ensureLibExercise(libEx) if no document
+  FV -> DS : merge("exercises", id, {favorite: not current})
+  DS --> A : star updated (live snapshot)
+end
+@enduml

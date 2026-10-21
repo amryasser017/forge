@@ -1,0 +1,40 @@
+@startuml
+!include style.iuml
+title Sequence 8 of 8: Record an InBody report with an image (UC-18)
+skinparam sequenceMessageAlign left
+actor "athlete : Athlete" as A
+participant "page : InBodyView" as IV
+participant "img : ImageCompressor" as IC
+participant "units : Units" as U
+participant "store : DataStore" as DS
+participant "db : Firestore" as DB
+
+A -> IV : tap "New report"
+IV --> A : form (date, weight, muscle, fat mass, fat %, visceral, BMR, notes, image)
+opt choose an image
+  A -> IV : select file
+  IV -> IC : compressImage(file, max 1200, quality 0.74)
+  activate IC
+  IC -> IC : load image, scale to max side 1200, draw on canvas
+  IC --> IV : JPEG data URL
+  deactivate IC
+  alt image cannot be read
+    IV --> A : alert "Could not read that image"
+  end
+end
+A -> IV : tap "Save report"
+loop each metric in IN_METRICS
+  alt field empty
+    IV -> IV : value = null
+  else mass metric (weight, muscle, fat mass)
+    IV -> U : toKg(raw)
+    U --> IV : kg
+  else other metric
+    IV -> IV : parseFloat(raw)
+  end
+end
+IV -> DS : add("inbody", {date, note, image, metrics})
+DS -> DB : addDoc(users/{uid}/inbody, ..., createdAt)
+DB --> IV : live snapshot
+IV --> A : close form, report appears in the list and charts
+@enduml

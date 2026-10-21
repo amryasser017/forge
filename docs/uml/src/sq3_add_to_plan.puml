@@ -1,0 +1,41 @@
+@startuml
+!include style.iuml
+title Sequence 3 of 8: Add an exercise to a plan day (UC-10)
+skinparam sequenceMessageAlign left
+actor "athlete : Athlete" as A
+participant "card : DayCard" as DC
+participant "picker : PlanPicker" as PP
+participant "search : ExerciseSearch" as ES
+participant "plan : PlanActions" as PA
+participant "ops : PlanOps" as PO
+participant "store : DataStore" as DS
+participant "db : Firestore" as DB
+
+A -> DC : tap "Add exercise" on Monday
+DC -> PP : open(day info, day)
+PP -> ES : folderItems(index, focus muscles)
+ES --> PP : popular exercises for the day focus
+PP --> A : suggestions, recents and search box
+A -> PP : type "bench"
+PP -> ES : searchIndex(index, "bench")
+ES --> PP : ranked results
+A -> PP : choose exercise, set sets x reps
+A -> PP : tap "Add to Monday"
+PP -> PA : addExercise("mon", view, sets, reps)
+activate PA
+opt library exercise without a document
+  PA -> DS : ensureLibExercise(libEx)
+  DS -> DB : create exercises/lib_id if missing
+end
+PA -> PO : addItem(day, docId, sets, reps)
+alt exercise already in that day
+  PO --> PA : same day (no change)
+else new
+  PO --> PA : day with the new item at the end
+end
+PA -> DS : merge("plan", "mon", day)
+DS -> DB : setDoc(users/{uid}/plan/mon, day, merge)
+deactivate PA
+DB --> DC : live snapshot (usePlan)
+DC --> A : row appears; picker shows a check mark
+@enduml

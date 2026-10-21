@@ -1,0 +1,109 @@
+@startuml
+!include style.iuml
+title Class Diagram 4 of 7: Weekly Plan (C6)
+skinparam classAttributeIconSize 0
+
+class WeeklyPlan {
+  +sat : PlanDay
+  +sun : PlanDay
+  +mon : PlanDay
+  +tue : PlanDay
+  +wed : PlanDay
+  +thu : PlanDay
+  +fri : PlanDay
+  +planGoal()
+  +planHasItems()
+}
+class PlanDay {
+  +label : String
+  +rest : Boolean
+  +focus : String[]
+  +items : PlanItem[]
+}
+class PlanItem {
+  +exerciseId : String
+  +targetSets : Number = 3
+  +targetReps : Number = 10
+  +note : String
+}
+class DayInfo {
+  +key : String
+  +getDay : Number
+  +name : String
+  +short : String
+}
+class PlanOps <<utility>> {
+  +addItem(day, exerciseId, sets, reps)
+  +removeItem(day, exerciseId)
+  +moveItem(day, from, to)
+  +setTargets(day, exerciseId, sets, reps)
+  +toggleFocus(day, key)
+  +shiftWeek(plan, n)
+  +swapDays(plan, a, b)
+  +moveDay(plan, from, to)
+  +copyDay(plan, from, to)
+  +clearDay(day)
+  +dayChanged(a, b)
+  +hasItem(day, exerciseId)
+  +emptyDay()
+  +dayKeyOf(date)
+  +dayInfo(key)
+  +DAYS, DAY_KEYS
+  +DEFAULT_SETS, DEFAULT_REPS
+  +normalizeDay(doc)
+  +planFromDocs(docs)
+}
+class PlanActions {
+  +plan : WeeklyPlan
+  +apply(nextPlan)
+  +update(dayKey, fn)
+  +addExercise(dayKey, view, sets, reps)
+  +applyTemplate(template, libData)
+}
+class PlanTemplate {
+  +key : String
+  +name : String
+  +blurb : String
+  +week : TemplateDay[7]
+  +TEMPLATES : ppl, upper-lower,
+    full-body, bro
+  +templateNames(t)
+}
+class TemplateDay {
+  +label : String
+  +focus : String[]
+  +picks : [name, sets, reps][]
+}
+class LegacyScheduleDay {
+  +id : String
+  +name : String
+  +weekday : Number | null
+  +exerciseIds : String[]
+}
+class PlanMigration {
+  +migrateSchedule(scheduleDocs, existingIds)
+  +planMigrated : Boolean
+}
+class UndoState <<Plan view>> {
+  +id : Number
+  +text : String
+  +onUndo()
+}
+class ExerciseDoc
+
+WeeklyPlan "1" *-- "7" PlanDay
+PlanDay "1" *-- "0..*" PlanItem
+PlanItem "*" --> "1" ExerciseDoc : exerciseId
+DayInfo "7" -- "1" WeeklyPlan : Saturday to Friday
+PlanActions ..> PlanOps
+PlanActions "1" --> "1" WeeklyPlan : writes changed days
+PlanActions ..> PlanTemplate : applyTemplate
+PlanTemplate "1" *-- "7" TemplateDay
+PlanMigration ..> LegacyScheduleDay : reads
+PlanMigration ..> WeeklyPlan : creates once
+UndoState ..> PlanActions : onUndo = apply(previous)
+note bottom of WeeklyPlan
+  Documents users/{uid}/plan/{sat..fri}.
+  Weekly goal = days that are not rest and have items.
+end note
+@enduml

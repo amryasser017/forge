@@ -1,0 +1,61 @@
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName DejaVu Sans
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam dpi 140
+skinparam roundCorner 8
+skinparam ArrowColor #1B5E8C
+skinparam ArrowFontColor #1B3A57
+skinparam ArrowFontSize 11
+skinparam usecase {
+  BackgroundColor #7FD3F7
+  BorderColor #1B5E8C
+  FontSize 12
+  ArrowColor #1B5E8C
+}
+skinparam actor {
+  BackgroundColor #7FD3F7
+  BorderColor #1B5E8C
+}
+skinparam rectangle {
+  BackgroundColor #F2FAFE
+  BorderColor #1B5E8C
+  FontColor #1B3A57
+}
+skinparam class {
+  BackgroundColor #7FD3F7
+  BorderColor #1B5E8C
+  HeaderBackgroundColor #5BC0EB
+  AttributeFontSize 11
+  AttributeIconSize 0
+  FontSize 13
+}
+skinparam component {
+  BackgroundColor #7FD3F7
+  BorderColor #1B5E8C
+}
+skinparam interface {
+  BackgroundColor #FFFFFF
+  BorderColor #1B5E8C
+}
+skinparam package {
+  BackgroundColor #F2FAFE
+  BorderColor #1B5E8C
+}
+skinparam note {
+  BackgroundColor #FFF8D6
+  BorderColor #C9A227
+  FontSize 11
+}
+skinparam sequence {
+  ParticipantBackgroundColor #7FD3F7
+  ParticipantBorderColor #1B5E8C
+  LifeLineBorderColor #7A8DA0
+  LifeLineBackgroundColor #FFFFFF
+  ActorBackgroundColor #7FD3F7
+  ActorBorderColor #1B5E8C
+  GroupBackgroundColor #F2FAFE
+  BoxBackgroundColor #F7FBFD
+}
+skinparam sequenceMessageAlign left
+hide empty members

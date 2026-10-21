@@ -1,0 +1,78 @@
+@startuml
+!include style.iuml
+skinparam linetype ortho
+title Component Diagram 3 of 3: Plan, Attendance, Body and InBody
+
+component "C6 Weekly Plan" as C6
+component "C7 Attendance & Goals" as C7
+component "C8 Body Tracking" as C8
+component "C9 InBody Reports" as C9
+component "C1 Identity & Profile" as C1
+component "C3 Exercise Library" as C3
+component "C4 Workout Logging" as C4
+component "C5 Progress & Analytics" as C5
+component "C2 Data Store" as C2
+component "C12 Views\n(Home, Plan, Body, InBody)" as C12
+
+interface "IPlan" as IPL
+interface "IAttendance" as IAT
+interface "IBodyTracker" as IBT
+interface "IInBody" as IIB
+interface "IProfile" as IPF
+interface "IExerciseCatalog" as IEC
+interface "ILogReader" as ILR
+interface "IProgress" as IPR
+interface "IDataStore" as IDS
+
+C6 -up- IPL
+C7 -up- IAT
+C8 -up- IBT
+C9 -up- IIB
+C1 -up- IPF
+C3 -up- IEC
+C4 -up- ILR
+C5 -up- IPR
+C2 -up- IDS
+
+C6 ..> IDS
+C6 ..> IEC
+C6 ..> IPR
+C7 ..> IPL
+C7 ..> ILR
+C7 ..> IPF
+C7 ..> IDS
+C8 ..> IPF
+C8 ..> IDS
+C9 ..> IDS
+C12 ..> IPL
+C12 ..> IAT
+C12 ..> IBT
+C12 ..> IIB
+
+note right of IPL
+  usePlan(): plan (Saturday to Friday)
+  usePlanActions(): apply, update,
+    addExercise, applyTemplate
+  shiftWeek, swapDays, moveDay,
+    copyDay, clearDay
+  planGoal, planHasItems, migrateSchedule
+end note
+note right of IAT
+  put('checkins', date) / del('checkins', date)
+  useCol('checkins'): items
+  weekStreak(dates, goal)
+end note
+note right of IBT
+  add('weights', {value, date})
+  del('weights', id)
+  saveProfile({startWeight, targetWeight,
+    targetDate})
+  progressPct(start, current, target)
+end note
+note right of IIB
+  add('inbody', data + image)
+  del('inbody', id)
+  compressImage(file), IN_METRICS
+  compare two reports (metric by metric)
+end note
+@enduml

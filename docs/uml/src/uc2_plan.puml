@@ -1,0 +1,29 @@
+@startuml
+!include style.iuml
+left to right direction
+skinparam nodesep 14
+skinparam ranksep 90
+title Use Cases 2 of 4: Weekly Plan
+actor "Athlete" as A
+actor "Cloud Firestore" as FS <<system>>
+rectangle "Forge" {
+  usecase "UC-10\nBuild the weekly plan\n<size:10>(Plan.jsx, DayCard, PlanPicker)</size>" as UC10
+  usecase "UC-11\nEdit the week:\nshift, move, swap, copy, clear, undo\n<size:10>(Plan.jsx, ShiftWeekSheet, DayPickerSheet)</size>" as UC11
+  usecase "UC-12\nApply a starter plan\n<size:10>(TemplatesModal)</size>" as UC12
+  usecase "UC-21\nAdd exercise to today's plan\n<size:10>(LogTab, AddToPlanButton)</size>" as UC21
+  usecase "UC-05\nBrowse and search exercises\n<size:10>(search index)</size>" as UC05
+}
+A --> UC10
+A --> UC11
+A --> UC12
+A --> UC21
+A --> UC05
+UC10 -- FS
+UC11 -- FS
+UC12 -- FS
+UC21 -- FS
+UC12 .> UC10 : <<extend>>
+UC11 .> UC10 : <<extend>>
+UC10 ..> UC05 : <<include>>
+note right of UC11 : Every change here offers Undo\nand writes only the days that changed
+@enduml

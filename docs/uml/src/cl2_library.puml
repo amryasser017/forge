@@ -1,0 +1,123 @@
+@startuml
+!include style.iuml
+title Class Diagram 2 of 7: Exercise Library (C3)
+skinparam classAttributeIconSize 0
+
+class LibraryExercise <<dataset>> {
+  +id : String
+  +name : String
+  +force : String
+  +level : String
+  +mechanic : "compound" | "isolation"
+  +equipment : String
+  +primaryMuscles : String[]
+  +secondaryMuscles : String[]
+  +instructions : String[]
+  +images : String[]
+}
+class ExerciseDoc {
+  +id : String  (lib_<datasetId> or auto)
+  +name : String
+  +archived : Boolean
+  +favorite : Boolean
+  +libId : String
+  +custom : Boolean
+  +folderKey : String
+  +equipment : String
+  +createdAt : Timestamp
+}
+class ExerciseView {
+  +key : String
+  +docId : String
+  +name : String
+  +lib : LibraryExercise
+  +group : EquipmentGroup
+  +mechanic : String
+  +folder : String
+  +popular : Boolean
+  +custom : Boolean
+  +doc : ExerciseDoc
+}
+class MuscleFolder {
+  +key : String
+  +label : String
+  +emoji : String
+  +FOLDERS : 17 muscle folders
+  +CUSTOM_FOLDER : "My custom"
+  +folderKeyOf(ex)
+  +muscleLabel(key)
+}
+class UserFolder {
+  +id : String
+  +name : String
+  +exerciseIds : String[]
+  +createdAt : Timestamp
+}
+class ExerciseLibrary {
+  +data : LibraryExercise[]
+  +index : SearchIndex
+  +byId : Map
+  +error : Boolean
+  +loadExercises()
+  +libDocId(datasetId)
+  +datasetIdOf(docId)
+  +imageUrls(ex, i)
+  +ensureLibExercise(libEx)
+}
+class SearchIndex {
+  +buildIndex(data, popularSet)
+  +searchIndex(index, query, filters)
+  +folderItems(index, folder)
+  +expandQuery(query)
+  +tokens(text)
+}
+class VideoLink {
+  +howToUrl(name)
+}
+class ExerciseInfoViews <<views>> {
+  +MuscleChips(ex)
+  +ExerciseMedia(ex) : start / end images
+  +HowTo(ex) : steps + VideoBlock
+  +exerciseSummary(ex)
+}
+class ExerciseViewFactory {
+  +libView(ex, doc)
+  +customView(doc)
+  +docView(doc, byId)
+  +equipmentGroup(equipment)
+  +MECHANIC_LABEL
+}
+enum EquipmentGroup {
+  EQUIPMENT_GROUPS
+  Machine
+  Cable
+  Barbell
+  Dumbbell
+  Bodyweight
+  Other
+}
+class PopularList {
+  +POPULAR_IDS : String[]
+}
+
+ExerciseDoc "0..1" -- "0..1" LibraryExercise : libId
+ExerciseView o-- ExerciseDoc
+ExerciseView o-- LibraryExercise
+MuscleFolder "1" o-- "*" LibraryExercise : by primary muscle
+UserFolder "*" o-- "*" ExerciseDoc : exerciseIds
+ExerciseLibrary "1" *-- "584" LibraryExercise
+ExerciseLibrary ..> SearchIndex : builds
+SearchIndex ..> PopularList : ranks
+SearchIndex ..> EquipmentGroup : filter
+ExerciseView ..> EquipmentGroup
+ExerciseLibrary ..> ExerciseDoc : ensureLibExercise creates once
+VideoLink ..> LibraryExercise : search link by name
+ExerciseInfoViews ..> LibraryExercise
+ExerciseInfoViews ..> VideoLink
+ExerciseViewFactory ..> ExerciseView : creates
+ExerciseViewFactory ..> EquipmentGroup
+note bottom of ExerciseDoc
+  Library exercises get a document only on first favorite,
+  log or add-to-plan. Custom exercises have custom = true.
+end note
+@enduml
