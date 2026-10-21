@@ -3,11 +3,11 @@ import { toPng } from './render.mjs';
 const D = new Diagram(1700, 1080, 'Forge: Component Diagram (overview of all components and their interfaces)');
 const dot = (x, y) => D.add(`<circle cx="${x}" cy="${y}" r="3.2" fill="#1B5E8C"/>`);
 
-D.comp('C11', 'C11 UI Kit', 60, 55, 1070, 62, { sub: ['Sheet, Modal, Stepper, UndoToast, PlateBar, ChartCard, useFocusTrap, theme (provides UI components; requires nothing)'] });
+D.comp('C11', 'C11 UI Kit', 60, 55, 1070, 62, { sub: ['npm package @forge/ui: Sheet, Modal, Stepper, UndoToast, PlateBar, ChartCard, ErrorBoundary, useFocusTrap, theme (requires nothing)'] });
 
 // App shell
 D.sub('SHELL', 'App Shell', 40, 170, 300, 700, 'sub system');
-D.comp('C12', 'C12 App Shell and\nComposition Views', 70, 230, 240, 580, { sub: ['Routes: / /body /exercises', '  /exercises/:id /schedule', '  /inbody /charts /settings', '', 'Views:', 'Layout and navigation', 'Home (Dashboard, TodayCard)', 'Lifts page', 'Exercise detail', 'Exercise sheet', '  (Progress / How to / Log)', 'Charts', 'Settings', '', 'requires: all feature', 'interfaces below,', 'UI Kit, IUnits, IDates'] });
+D.comp('C12', 'C12 App Shell and\nComposition Views', 70, 230, 240, 580, { sub: ['Routes: / /body /exercises', '  /exercises/:id /schedule', '  /inbody /charts /settings', 'Every page sits in an', '  ErrorBoundary (Try again)', '', 'Views:', 'Layout and navigation', 'Home (Dashboard, TodayCard)', 'Lifts page', 'Exercise detail', 'Exercise sheet', '  (Progress / How to / Log)', 'Charts', 'Settings', '', 'requires: all feature', 'interfaces below,', 'UI Kit, IUnits, IDates'] });
 
 // features, bottom to top order matches the shell ports
 D.sub('FEAT', 'Features', 590, 170, 540, 700, 'sub system');
@@ -19,7 +19,7 @@ const rows = [
   ['C7', 'C7 Attendance & Goals', 'IAttendance'],
   ['C8', 'C8 Body Tracking', 'IBodyTracker, IBodyReader'],
   ['C9', 'C9 InBody Reports', 'IInBody, IInBodyReader'],
-  ['C1', 'C1 Identity & Profile', 'IAuth, IProfile'],
+  ['C1', 'C1 Identity & Profile', 'IAuth, IProfile (npm package)'],
 ];
 const needsData = ['C3', 'C4', 'C6', 'C7', 'C8', 'C9', 'C1'];
 const needsUnits = ['C3', 'C4', 'C5', 'C7', 'C8', 'C9'];
@@ -45,8 +45,8 @@ D.text(B2 + 8, ys.C9 + 40, 'IUnits, IDates bus', { size: 10.5, italic: true, anc
 
 // Foundation
 D.sub('FND', 'Foundation', 1330, 170, 320, 700, 'sub system');
-D.comp('C2', 'C2 Data Store', 1370, 230, 240, 62, { sub: ['provides: IDataStore'] });
-D.comp('C10', 'C10 Units & Dates', 1370, 230 + 6 * 74, 240, 62, { sub: ['provides: IUnits, IDates'] });
+D.comp('C2', 'C2 Data Store', 1370, 230, 240, 62, { sub: ['provides: IDataStore', 'npm package @forge/datastore'] });
+D.comp('C10', 'C10 Units & Dates', 1370, 230 + 6 * 74, 240, 62, { sub: ['provides: IUnits, IDates', 'npm package @forge/shared'] });
 D.port('fD', 1330, ys.C3); D.port('fU', 1330, ys.C1 - 74 + 0);
 // data store port aligned with the first data user row (C3)
 D.poly([[1330, ys.C3], [1370, ys.C3]]);

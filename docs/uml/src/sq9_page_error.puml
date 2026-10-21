@@ -1,0 +1,48 @@
+@startuml
+!include style.iuml
+title Sequence 9 of 9: a crashing page is contained by the error boundary (FR-APP-05)
+skinparam sequenceMessageAlign left
+actor "athlete : Athlete" as A
+participant "nav : Layout" as N
+participant "guard : ErrorBoundary" as EB
+participant "page : PlanPage" as PG
+participant "err : PageError" as PE
+participant "router : Router" as R
+
+A -> N : tap "Plan"
+N -> R : navigate("/schedule")
+R --> EB : render with resetKey = "/schedule"
+EB -> PG : render children
+activate PG
+PG -> PG : render throws (for example bad data)
+PG --> EB : error
+deactivate PG
+EB -> EB : getDerivedStateFromError(error)
+EB -> EB : componentDidCatch(error, info) : console.error, onError
+EB -> PE : fallback(error, reset)
+PE --> A : "This page ran into a problem" with Try again and Go to Home
+note over N : The navigation outside the boundary keeps working.
+alt athlete taps "Try again"
+  A -> PE : Try again
+  PE -> EB : reset()
+  EB -> PG : render children again
+  alt data is still bad
+    PG --> EB : error
+    EB --> A : message stays on screen
+  else data is fixed
+    PG --> A : the page renders normally
+  end
+else athlete opens another page
+  A -> N : tap "Body"
+  N -> R : navigate("/body")
+  R --> EB : resetKey changed
+  EB -> EB : componentDidUpdate : error cleared
+  EB -> PG : render the Body page
+  PG --> A : Body page works
+end
+note over EB
+  A second ErrorBoundary around the whole app
+  (data store, profile, shell) shows a Reload screen
+  if something outside the pages fails.
+end note
+@enduml

@@ -56,7 +56,7 @@ Four components are workspace packages in `packages/` (see `packages/README.md`)
 - `packages/datastore` (`@forge/datastore`, C2): the Firebase app (`auth`, `db`, `googleProvider`), `DataStoreProvider` (uid injected by the shell), `useDataStore()` (add, put, merge, ensureDoc, upd, del), `useCol(name)`
 - `packages/identity` (`@forge/identity`, C1): `AuthProvider`/`useAuth()` (session, signOut), `ProfileProvider`/`useProfile()` (profile, saveProfile), `Login`
 - `packages/shared` (`@forge/shared`, C10): `makeUnits`, `UnitsProvider`/`useUnits()` (kg/lb), dates (YYYY-MM-DD, Saturday week)
-- `packages/ui` (`@forge/ui`, C11): Sheet, Modal, Stepper, UndoToast, PlateBar, ChartCard, `useFocusTrap`, `COLORS`, theme `@forge/ui/styles.css`
+- `packages/ui` (`@forge/ui`, C11): Sheet, Modal, Stepper, UndoToast, PlateBar, ChartCard, `ErrorBoundary`, `useFocusTrap`, `COLORS`, theme `@forge/ui/styles.css`
 - `src/library/` (C3): `data/` (exercise dataset, muscle folders, popular list), search, views, `useExerciseDocs()`, components (images, how-to, favorites, custom exercises and folders)
 - `src/logging/` (C4): `LogTab`, `setDrafts`, `logReader.js` (groupLogs, recentExerciseIds, setsOn), `useLogs()`
 - `src/progress/` (C5): `exerciseStats.js`, `prs.js` (computePRs, epley), ProgressPanel, Glance (pure: logs are passed in)
@@ -64,7 +64,7 @@ Four components are workspace packages in `packages/` (see `packages/README.md`)
 - `src/attendance/` (C7): `attendance.js` (weekly goal, streak, week summary), `useAttendance()`
 - `src/body/` (C8): `BodyPage`, `bodyMath.js` (progressPct), `useWeights()`
 - `src/inbody/` (C9): `InBodyPage`, `inbody.js` (IN_METRICS, compressImage), `useReports()`
-- `src/app/` (C12): `App.jsx` (wires session -> data store -> profile -> units), `Layout.jsx`, `views/` (Dashboard, Lifts, ExerciseDetail, ExerciseSheet, PlanPage, TodayCard, Charts, Settings). Views combine components and hold no business rules.
+- `src/app/` (C12): `App.jsx` (wires session -> data store -> profile -> units), `Layout.jsx`, `views/` (Dashboard, Lifts, ExerciseDetail, ExerciseSheet, PlanPage, TodayCard, Charts, Settings). Views combine components and hold no business rules. Every page is wrapped in an `ErrorBoundary` (`PageError`: Try again / Go to Home, resets when the path changes) and the whole app has an `AppCrash` Reload screen, so one crashing page does not blank the app.
 
 Rules: import a package only through its entry point (`@forge/identity`, never deep paths); one owner per collection (read it through the owner's hook, e.g. `useLogs()`, never `useCol('logs')` elsewhere); only `datastore` and `identity` import the Firebase SDK; no circular dependencies; analytics and the plan page receive logs as arguments. The app stays at the repo root so the Vercel settings do not change; `npm install` at the root links the packages.
 
