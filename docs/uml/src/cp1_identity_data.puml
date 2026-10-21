@@ -1,68 +1,67 @@
 @startuml
 !include style.iuml
 skinparam linetype ortho
-title Component Diagram 1 of 3: Identity, Data Store and Shared Kernel
+skinparam nodesep 40
+skinparam ranksep 70
+skinparam componentStyle uml2
+title Component Diagram 1 of 3: Identity, Data Store and Shared Kernel (provided and required interfaces)
 
-component "C1 Identity & Profile" as C1
-component "C2 Data Store" as C2
-component "C10 Units & Dates\n(Shared Kernel)" as C10
-component "C8 Body Tracking" as C8
-component "C12 App Shell\n(views)" as C12
-cloud "Firebase" {
+component "Firebase <<external system>>" as FB {
+  portout "SDK" as FBp1
+  portout "SDK " as FBp2
   component "Firebase Auth" as FAUTH
-  database "Cloud Firestore" as FS
+  component "Cloud Firestore" as FS
 }
 
-interface "IAuth" as IAuth
-interface "IProfile" as IProf
-interface "IDataStore" as IDS
-interface "IUnits" as IUn
-interface "IDates" as IDt
+component "Foundation <<sub system>>" as FND {
+  portin "uid (from shell)" as FNDin
+  component "C2 Data Store" as C2
+  component "C10 Units & Dates\n(Shared Kernel)" as C10
+}
 
-C1 -up- IAuth
-C1 -up- IProf
-C2 -up- IDS
-C10 -up- IUn
-C10 -up- IDt
+component "Features <<sub system>>" as FEAT {
+  component "C1 Identity & Profile" as C1
+  component "C8 Body Tracking" as C8
+}
 
-C1 ..> IDS : requires
-C1 ..> FAUTH : uses SDK
-C2 ..> FS : uses SDK
-C8 ..> IProf : requires
-C8 ..> IUn : requires
-C12 ..> IAuth : requires
-C12 ..> IProf : requires
-C12 ..> IUn : requires
-C12 ..> IDt : requires
+component "C12 App Shell and\nComposition Views" as C12
 
-note right of IAuth
-  createUserWithEmailAndPassword + updateProfile
-  signInWithEmailAndPassword
-  signInWithPopup(Google)
-  signOut
-  user (onAuthStateChanged)
+FAUTH -0)- C1 : Auth SDK
+FS -0)- C2 : Firestore SDK
+C2 -0)- C1 : IDataStore
+C2 -0)- C8 : IDataStore
+C1 -0)- C8 : IProfile
+C10 -0)- C8 : IUnits
+C1 -0)- C12 : IAuth
+C1 -0)- C12 : IProfile
+C10 -0)- C12 : IUnits, IDates
+C12 ..> FNDin : supplies the signed-in uid
+
+note right of C1
+  <b>Provides</b>
+  IAuth: user, signUp, signIn,
+    signInWithGoogle, signOut
+  IProfile: profile, saveProfile,
+    ensureProfile
+  <b>Requires</b>
+  IDataStore, Firebase Auth
 end note
-note right of IProf
-  profile: name, unit, startWeight,
-  targetWeight, targetDate, weeklyGoal
-  saveProfile(partial)
+note left of C2
+  <b>Provides IDataStore</b>
+  useCol(name) -> items, loading
+  add, put, merge, ensureDoc,
+  upd, del
+  <b>Requires</b> Firestore SDK, uid
 end note
-note left of IDS
-  useCol(collection): items, loading
-  add(collection, data)
-  put(collection, id, data)
-  merge(collection, id, data)
-  ensureDoc(collection, id, data)
-  upd(collection, id, data)
-  del(collection, id)
+note right of C10
+  <b>Provides</b>
+  IUnits: show(kg), toKg(v), r1
+  IDates: ymd, todayStr, fmtDate,
+    shortDate, weekStart, byDate
+  <b>Requires</b> nothing
 end note
-note left of IUn
-  show(kg), toKg(value), r1(n)
-  unit = kg | lb
-end note
-note left of IDt
-  ymd, todayStr, fmtDate, shortDate
-  weekStart (Saturday), byDate
-  DAY_NAMES, WEEK_ORDER
+note bottom of C8
+  <b>Provides</b> IBodyTracker, IBodyReader
+  <b>Requires</b> IDataStore, IProfile, IUnits
 end note
 @enduml
