@@ -49,6 +49,7 @@ Rules: `firestore.rules`. Users can only read and write their own subtree. Rules
 - Colors (CSS variables in `:root`): slate base, ember orange `#FF6A2B` for effort, volt blue `#43D9F0` for data, gold `#FFC53D` for PRs.
 - Fonts: Big Shoulders Display (headings and numbers), Figtree (body).
 - Signature element: the barbell-style `PlateBar` progress bar.
+- App icon: an ember flame over a barbell on a slate tile (`public/`: favicon.svg, favicon.ico, apple-touch-icon.png, icon-192/512, icon-maskable-512, manifest.webmanifest). Source and generator: `scripts/icons/`.
 - Mobile-first: bottom tab bar under 860px. Keep tap targets at least 44px.
 
 ## Project layout (component-based, npm workspaces)
